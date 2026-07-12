@@ -1,0 +1,61 @@
+{% extends "base.html" %} {% block content %}
+
+<div class="progress-container">
+  <div id="progress-bar" class="progress-bar"></div>
+</div>
+
+<div id="form-wrapper">
+  <div
+    id="form-container"
+    data-json-url="{{ url_for('static', filename='data/questions.json') }}"
+  >
+    <p
+      id="loading-text"
+      style="text-align: center; color: var(--primary-yellow)"
+    >
+      Cargando tu perfil ideal...
+    </p>
+  </div>
+</div>
+
+<div class="nav-buttons">
+  <button class="btn-nav" id="btn-prev" style="display: none">Atrás</button>
+  <button class="btn-nav primary" id="btn-next" style="display: none">
+    Siguiente
+  </button>
+  <button class="btn-nav primary" id="submit-btn" style="display: none">
+    Terminar
+  </button>
+</div>
+<dialog id="success-dialog" class="custom-dialog">
+  <div class="dialog-content">
+    <h2 style="color: var(--primary-yellow); margin-bottom: 15px">
+      ¡Perfil creado con éxito!
+    </h2>
+
+    <p>
+      Bienvenido <strong id="user-name-display">[Nombre del usuario]</strong>.
+    </p>
+
+    <p style="margin-top: 15px">Desde la app podrás:</p>
+    <ul
+      style="
+        text-align: left;
+        margin: 10px 0 20px 30px;
+        line-height: 1.6;
+        color: var(--text-muted);
+      "
+    >
+      <li>Llevar a cabo un registro de tu progreso.</li>
+      <li>Encontrar a tus coaches de interés.</li>
+      <li>Unirte a rachas con amigos si así lo deseas.</li>
+      <li>Mirar casos reales y seguir mejorando.</li>
+    </ul>
+
+    <button id="close-dialog-btn" class="btn-submit">Ir a mi feed</button>
+  </div>
+</dialog>
+
+<script src="{{ url_for('static', filename='js/questionnaire.js') }}"></script>
+
+{% endblock %}

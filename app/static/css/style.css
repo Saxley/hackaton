@@ -1,0 +1,225 @@
+:root {
+    --bg-dark: #0b0b0b;
+    --bg-card: #1a1a1a;
+    --primary-yellow: #ffb612;
+    --primary-yellow-hover: #e5a310;
+    --text-main: #ffffff;
+    --text-muted: #a0a0a0;
+    --border-color: #333333;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+body {
+    background-color: var(--bg-dark);
+    color: var(--text-main);
+    padding-bottom: 40px;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* Header */
+.header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    background-color: var(--bg-dark);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.header h1 {
+    font-size: 24px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+}
+
+.header h1 span {
+    color: var(--primary-yellow);
+}
+
+/* Contenedores y Tarjetas */
+.container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.card {
+    background-color: var(--bg-card);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    border: 1px solid var(--border-color);
+    transition: all 0.3s ease;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* Elementos del Formulario */
+.question-label {
+    display: block;
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 15px;
+    line-height: 1.4;
+}
+
+select,
+input[type="text"] {
+    width: 100%;
+    background-color: var(--bg-dark);
+    color: var(--text-main);
+    border: 1px solid var(--border-color);
+    padding: 14px;
+    border-radius: 8px;
+    font-size: 16px;
+    appearance: none;
+    outline: none;
+}
+
+select:focus,
+input[type="text"]:focus {
+    border-color: var(--primary-yellow);
+}
+
+.range-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+input[type="range"] {
+    width: 100%;
+    accent-color: var(--primary-yellow);
+}
+
+/* Botón de Enviar */
+.btn-submit {
+    width: 100%;
+    background-color: var(--primary-yellow);
+    color: #000;
+    border: none;
+    padding: 16px;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.btn-submit:active {
+    background-color: var(--primary-yellow-hover);
+}
+
+/* Animación del contenedor de preguntas */
+#form-wrapper {
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.fade-out-left {
+    opacity: 0 !important;
+    transform: translateX(-20px) !important;
+}
+
+.fade-out-right {
+    opacity: 0 !important;
+    transform: translateX(20px) !important;
+}
+
+/* Barra de progreso */
+.progress-container {
+    width: 100%;
+    height: 8px;
+    background-color: var(--bg-card);
+    border-radius: 4px;
+    margin: 10px 0 30px 0;
+    overflow: hidden;
+}
+
+.progress-bar {
+    height: 100%;
+    background-color: var(--primary-yellow);
+    width: 0%;
+    transition: width 0.4s ease;
+}
+
+/* Controles de Navegación */
+.nav-buttons {
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.btn-nav {
+    flex: 1;
+    background-color: var(--border-color);
+    color: var(--text-main);
+    border: none;
+    padding: 16px;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.btn-nav.primary {
+    background-color: var(--primary-yellow);
+    color: #000;
+}
+
+.btn-nav:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* =========================================
+   Estilos del Dialog (Modal de Éxito)
+   ========================================= */
+.custom-dialog {
+    background-color: var(--bg-card);
+    color: var(--text-main);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 30px;
+    max-width: 450px;
+    width: 90%;
+    margin: auto;
+    /* El navegador lo centra automáticamente */
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+}
+
+/* El fondo oscuro detrás del modal */
+.custom-dialog::backdrop {
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(4px);
+    /* Efecto cristalino */
+}
+
+.custom-dialog h2 {
+    font-size: 22px;
+}
+
+.custom-dialog p {
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+/* Evitar que se vea borde feo al enfocar */
+.custom-dialog:focus-visible {
+    outline: none;
+}
