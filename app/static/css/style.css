@@ -50,6 +50,12 @@ body {
     max-width: 600px;
     margin: 0 auto;
     padding: 20px;
+
+    /* Nuevas reglas de Flexbox para mantener los botones abajo */
+    display: flex;
+    flex-direction: column;
+    min-height: calc(100vh - 75px);
+    /* 100% de la pantalla menos el header */
 }
 
 .card {
@@ -126,6 +132,9 @@ input[type="range"] {
     transition: opacity 0.3s ease, transform 0.3s ease;
     opacity: 1;
     transform: translateX(0);
+
+    /* Esta línea es la magia: empuja los botones de navegación hacia abajo */
+    flex-grow: 1;
 }
 
 .fade-out-left {
@@ -161,6 +170,8 @@ input[type="range"] {
     justify-content: space-between;
     gap: 15px;
     margin-top: 20px;
+    margin-bottom: 20px;
+    /* Agrega este margen inferior */
 }
 
 .btn-nav {
