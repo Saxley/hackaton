@@ -236,10 +236,10 @@ document.addEventListener("DOMContentLoaded", () => {
           closeBtn.addEventListener("click", () => {
             dialog.close();
             // Aquí puedes redirigir al usuario al dashboard real:
-            // window.location.href = '/dashboard';
+            window.location.href = "/dashboard";
 
             // Para el prototipo, solo recargaremos la página:
-            window.location.reload();
+            //window.location.reload();
           });
         }
       })

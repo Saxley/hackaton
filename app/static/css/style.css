@@ -234,3 +234,199 @@ input[type="range"] {
 .custom-dialog:focus-visible {
     outline: none;
 }
+
+/* =========================================
+   Barra de Navegación Dinámica Bifurcada
+   ========================================= */
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: var(--bg-card);
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    height: 65px;
+    z-index: 200;
+}
+
+.nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+    transition: color 0.2s ease;
+    padding: 8px 0;
+}
+
+.nav-item:active {
+    color: var(--primary-yellow);
+}
+
+.nav-item img {
+    width: 24px;
+    height: 24px;
+    margin-bottom: 4px;
+
+    /* Convierte los píxeles negros/oscuros en blancos/claros */
+    filter: invert(1);
+
+    transition: filter 0.2s ease;
+}
+
+/* Contenedores de pantallas */
+.app-screen {
+    display: none;
+    padding-bottom: 80px;
+    /* Espacio para que la barra no tape el contenido */
+}
+
+.app-screen.active {
+    display: block;
+}
+
+/* --- Contenedores de Carrusel --- */
+.category-block {
+    margin-bottom: 40px;
+}
+
+.category-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 15px;
+    color: var(--text-main);
+    border-left: 4px solid var(--primary-yellow);
+    padding-left: 10px;
+}
+
+/* Efecto Rueda 3D usando CSS Perspective */
+.carrusel-container-3d {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    width: 100%;
+    height: 220px;
+    perspective: 1000px;
+    /* Habilita el entorno 3D */
+    overflow: hidden;
+}
+
+.card-3d {
+    position: absolute;
+    width: 200px;
+    height: 180px;
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    cursor: pointer;
+    transition: transform 0.5s ease, opacity 0.5s ease, border-color 0.3s;
+    transform-style: preserve-3d;
+}
+
+/* Clases de Posicionamiento del Carrusel Rueda */
+.card-3d.prev {
+    transform: rotateY(35deg) translateZ(-150px) translateX(-180px);
+    opacity: 0.5;
+    z-index: 1;
+}
+
+.card-3d.focus {
+    transform: rotateY(0deg) translateZ(50px) translateX(0px);
+    border-color: var(--primary-yellow);
+    opacity: 1;
+    z-index: 3;
+    box-shadow: 0 10px 20px rgba(255, 182, 18, 0.15);
+}
+
+.card-3d.next {
+    transform: rotateY(-35deg) translateZ(-150px) translateX(180px);
+    opacity: 0.5;
+    z-index: 1;
+}
+
+.card-3d.hidden-card {
+    transform: rotateY(0deg) translateZ(-300px);
+    opacity: 0;
+    z-index: 0;
+    pointer-events: none;
+}
+
+/* Carrusel Estándar Horizontal (Para las otras categorías) */
+.carrusel-standard-container {
+    display: flex;
+    gap: 15px;
+    overflow-x: auto;
+    padding: 10px 5px;
+    scroll-behavior: smooth;
+}
+
+.carrusel-standard-container::-webkit-scrollbar {
+    display: none;
+}
+
+.card-standard {
+    min-width: 180px;
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 15px;
+    text-align: center;
+    cursor: pointer;
+}
+
+/* --- Ajustes del Modal Moderno --- */
+.modal-wrapper {
+    display: flex;
+    flex-direction: column;
+    min-height: 350px;
+}
+
+.modal-body {
+    flex-grow: 1;
+    margin-bottom: 20px;
+}
+
+.modal-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    position: sticky;
+    bottom: 0;
+    background-color: var(--bg-card);
+    padding-top: 10px;
+}
+
+.btn-modal {
+    width: 100%;
+    padding: 15px;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-modal.primary {
+    background-color: var(--primary-yellow);
+    color: #000;
+}
+
+.btn-modal.secondary {
+    background-color: var(--border-color);
+    color: var(--text-main);
+}

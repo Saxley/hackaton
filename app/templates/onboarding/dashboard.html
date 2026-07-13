@@ -1,0 +1,99 @@
+{% extends "base.html" %} {% block content %}
+
+<!-- PANTALLA DE SERVICIOS -->
+<div id="screen-servicios" class="app-screen">
+  <h2 style="margin-bottom: 20px; font-weight: 800">Servicios Disponibles</h2>
+
+  <!-- Aquí JavaScript inyectará las categorías y carruseles -->
+  <div id="categorias-container"></div>
+</div>
+
+<!-- DIALOG MODAL DE DETALLE DE SERVICIO -->
+<dialog id="service-modal" class="custom-dialog">
+  <div class="modal-wrapper">
+    <h2
+      id="modal-titulo"
+      style="color: var(--primary-yellow); margin-bottom: 10px"
+    ></h2>
+    <p
+      id="modal-costo"
+      style="font-weight: bold; margin-bottom: 15px; color: var(--text-main)"
+    ></p>
+
+    <div class="modal-body">
+      <p
+        id="modal-descripcion"
+        style="color: var(--text-muted); line-height: 1.6; text-align: left"
+      ></p>
+    </div>
+
+    <!-- Botones grandes fijos abajo del modal -->
+    <div class="modal-actions">
+      <button id="btn-go-to-service" class="btn-modal primary hidden">
+        Ir a [Servicio]
+      </button>
+      <button id="btn-add-cart" class="btn-modal secondary">
+        Agregar al carrito
+      </button>
+      <button id="btn-buy-now" class="btn-modal primary">Comprar</button>
+      <button
+        id="btn-close-modal"
+        style="
+          background: none;
+          border: none;
+          color: var(--text-muted);
+          margin-top: 10px;
+          cursor: pointer;
+        "
+      >
+        Cerrar ventana
+      </button>
+    </div>
+  </div>
+</dialog>
+
+<div id="screen-feed" class="app-screen active">
+  <h2 style="margin-bottom: 15px">Feed de Comunidad</h2>
+  <div class="card">
+    <p style="color: var(--text-muted)">
+      Aquí se mostrarán los videos verticales, retos e interacciones de tu
+      Círculo.
+    </p>
+  </div>
+</div>
+
+<div id="screen-perfil" class="app-screen">
+  <h2 style="margin-bottom: 15px">Mi Perfil</h2>
+  <div class="card">
+    <p><strong>Nivel:</strong> Principiante</p>
+    <p style="color: var(--text-muted); margin-top: 10px">
+      Logros alcanzados y estadísticas limpias.
+    </p>
+  </div>
+</div>
+
+<div id="screen-servicios" class="app-screen">
+  <h2 style="margin-bottom: 15px">Hub de Servicios</h2>
+  <div class="card">
+    <p style="color: var(--primary-yellow); font-weight: bold">
+      Smart Fit Coach & Body
+    </p>
+    <p style="color: var(--text-muted); margin-top: 5px">
+      Agenda tus citas con nutriólogos o especialistas aquí.
+    </p>
+  </div>
+</div>
+
+<!-- BARRA DE NAVEGACIÓN DINÁMICA (BIFURCADA) -->
+<nav
+  class="bottom-nav"
+  id="dynamic-nav"
+  data-img-path="{{ url_for('static', filename='img/') }}"
+  data-services-url="{{ url_for('static', filename='data/servicios.json') }}"
+>
+  <!-- Los botones se inyectarán de manera automática -->
+</nav>
+
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+
+{% endblock %}

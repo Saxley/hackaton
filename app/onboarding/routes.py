@@ -5,6 +5,10 @@ from . import onboarding_bp
 
 RESPONSES_FILE = 'responses.json'
 
+@onboarding_bp.route('/dashboard', methods=['GET'])
+def dashboard():
+    return render_template('onboarding/dashboard.html')
+
 @onboarding_bp.route('/', methods=['GET'])
 def index():
     return render_template('onboarding/questionnaire.html')

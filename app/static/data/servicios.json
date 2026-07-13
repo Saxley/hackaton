@@ -1,0 +1,74 @@
+[
+  {
+    "categoria": "Planes de Inscripción",
+    "tipo": "carrusel-3d",
+    "items": [
+      {
+        "id": "p_black",
+        "titulo": "Plan Black",
+        "costo": "$599/mes",
+        "desc": "El plan premium de la cadena. Ofrece acceso ilimitado a más de 2,000 gimnasios en México y toda Latinoamérica, área de Smart SPA con sillones de hidromasaje, y la posibilidad de ingresar a entrenar con un amigo (hasta 5 pases al mes) sin costo adicional."
+      },
+      {
+        "id": "p_fit",
+        "titulo": "Plan Fit",
+        "costo": "$499/mes",
+        "desc": "Ideal para entrenar de manera presencial en una ubicación específica. Concede acceso completo a todas las zonas de cardio, peso libre, peso integrado y áreas funcionales de tu unidad elegida, con la flexibilidad de no tener permanencia mínima obligatoria."
+      },
+      {
+        "id": "p_smart",
+        "titulo": "Plan Smart",
+        "costo": "$499/mes",
+        "desc": "La opción más económica e independiente. Disfruta de acceso total y sin restricciones de horario a todas las áreas de musculación y aparatos cardiovasculares dentro de tu sucursal de inscripción base, sujeto a fidelidad de 12 meses."
+      }
+    ]
+  },
+  {
+    "categoria": "Asesoría Especializada",
+    "tipo": "carrusel-standard",
+    "items": [
+      {
+        "id": "s_coach",
+        "titulo": "Smart Fit Coach",
+        "costo": "$99/mes",
+        "desc": "Seguimiento uno a uno en la palma de tu mano. Obtén un plan de entrenamiento 100% personalizado diseñado por un profesor en línea con base en tus objetivos. Incluye 12 consultas virtuales por videollamada al año y chat ilimitado para corregir técnicas."
+      },
+      {
+        "id": "s_body",
+        "titulo": "Smart Fit Body",
+        "costo": "$149/mes",
+        "desc": "Monitorea la evolución real de tu cuerpo. Realiza tu análisis periódico de bioimpedancia y composición corporal avanzada en los escáneres del gimnasio y mantén un registro histórico de tus niveles de grasa y masa muscular en tu Smart Fit App."
+      },
+      {
+        "id": "s_nutri",
+        "titulo": "Smart Fit Nutri",
+        "costo": "$99/mes",
+        "desc": "Asesoría nutricional en línea. Obtén planes alimenticios personalizados diseñados por nutriólogos certificados alineados a tu metabolismo. Permite agendar videollamadas privadas de seguimiento y revisar menús o recetas desde la sección de salud de la app."
+      }
+    ]
+  },
+  {
+    "categoria": "Ecosistema Digital y Clases",
+    "tipo": "carrusel-standard",
+    "items": [
+      {
+        "id": "s_go",
+        "titulo": "Smart Fit Go",
+        "costo": "Incluido",
+        "desc": "Plataforma de entrenamientos virtuales bajo demanda (OnDemand). Accede a miles de clases virtuales interactivas grabadas y transmisiones en vivo de Yoga, HIIT, Cardio, Ritmos y Abdominales para complementar tus entrenamientos fuera del gimnasio."
+      },
+      {
+        "id": "s_classes",
+        "titulo": "Reserva de Clases",
+        "costo": "Incluido",
+        "desc": "Módulo de gestión presencial. Visualiza los horarios vigentes y aparta tu lugar en las clases grupales exclusivas del gimnasio (Zumba, Smart Box, Smart Bike, Body Combat) directamente en la app para asegurar tu espacio antes de asistir."
+      },
+      {
+        "id": "s_energy",
+        "titulo": "Smart Fit Energy",
+        "costo": "$89/mes",
+        "desc": "Activación en sucursal. Desbloquea el dispensador de bebidas deportivas e hidratantes del gimnasio para consumirlas antes, durante y después del ejercicio. Administra y activa tu suscripción directamente desde el Hub de la app."
+      }
+    ]
+  }
+]
