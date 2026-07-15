@@ -1,0 +1,79 @@
+{% extends "base.html" %} {% block content %}
+<!-- Conexiones a los segmentos de estilos -->
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/style.css') }}"
+/>
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/registro.css') }}"
+/>
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/login.css') }}"
+/>
+
+<div class="form-container-main login-box">
+  <div class="form-header">
+    <h2>Ingresar a <span>Smart Fit</span></h2>
+    <p>Introduce tus credenciales para acceder a tu perfil personalizado.</p>
+  </div>
+
+  <form id="login-form" novalidate>
+    <!-- Campo de Identidad (Usuario o Correo) -->
+    <div class="card card-login">
+      <label class="question-label" for="login_identity"
+        >Usuario o Correo Electrónico</label
+      >
+      <input
+        type="text"
+        id="login_identity"
+        name="login_identity"
+        placeholder="Ej. @luis482 o tu@correo.com"
+        required
+      />
+    </div>
+
+    <!-- Campo de Contraseña Protegida -->
+    <div class="card card-login">
+      <label class="question-label" for="login_password">Contraseña</label>
+      <div class="password-wrapper">
+        <input
+          type="password"
+          id="login_password"
+          name="login_password"
+          placeholder="Ingresa tu contraseña"
+          required
+        />
+        <span class="toggle-password" id="toggle-login-pass">👁️</span>
+      </div>
+    </div>
+
+    <!-- Enlaces auxiliares de recuperación -->
+    <div class="login-helpers">
+      <a href="#" id="link-forgot" class="helper-link"
+        >¿Olvidaste tu usuario o contraseña?</a
+      >
+    </div>
+
+    <!-- Botón de Acción Principal -->
+    <div class="nav-buttons auth-actions">
+      <button type="submit" id="btn-login-submit" class="btn-submit">
+        Ingresar
+      </button>
+    </div>
+  </form>
+</div>
+
+<!-- VENTANA MODAL DIALOG PARA ERRORES DE AUTENTICACIÓN -->
+<dialog id="alert-dialog" class="custom-dialog validation-alert">
+  <div class="dialog-content">
+    <h2>Aviso del Sistema</h2>
+    <p id="alert-message"></p>
+    <button id="close-alert-btn" class="btn-submit intense">Entendido</button>
+  </div>
+</dialog>
+
+<!-- Conexión al script de autenticación -->
+<script src="{{ url_for('static', filename='js/login.js') }}"></script>
+{% endblock %}

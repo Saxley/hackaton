@@ -1,278 +1,110 @@
 {
   "form": {
-    "title": "Onboarding Smart Fit",
-    "questions": [
+    "title": "Onboarding Smart Fit - Motivación y Enfoque",
+    "sections": [
       {
-        "id": "q1",
-        "question": "Al pensar en ir a entrenar en este momento, ¿qué emoción predomina en ti?",
-        "type": "single_choice",
-        "options": [
-          "Motivación",
-          "Ansiedad",
-          "Curiosidad",
-          "Obligación",
-          "Incertidumbre",
-          "Otra"
+        "id": "sec_1",
+        "title": "Sección 1: Motivación y Punto de Partida",
+        "questions": [
+          {
+            "id": "q1_motivacion",
+            "question": "¿Qué te motivó a buscar un gimnasio o iniciar un cambio en tu estilo de vida en este momento?",
+            "type": "single_choice",
+            "options": [
+              "Ganar fuerza y músculo",
+              "Mejorar salud y energía",
+              "Perder grasa y peso",
+              "Manejo de estrés y desconexión"
+            ]
+          },
+          {
+            "id": "q2_emocion",
+            "question": "Al pensar en ir a entrenar ¿qué emoción predomina en ti?",
+            "type": "single_choice",
+            "options": ["Entusiasmo", "Determinación", "Nerviosismo"]
+          }
         ]
       },
       {
-        "id": "q2",
-        "question": "¿Qué sensación buscas experimentar justo al terminar tu rutina?",
-        "type": "single_choice",
-        "options": [
-          "Sentirme relajado/sin estrés",
-          "Sentirme con energía explosiva",
-          "Sentir el agotamiento muscular",
-          "Sentir orgullo",
-          "Otro"
+        "id": "sec_2",
+        "title": "Sección 2: Objetivos y Expectativas",
+        "questions": [
+          {
+            "id": "q3_sensacion",
+            "question": "¿Qué sensación buscas experimentar justo al terminar tu rutina?",
+            "type": "single_choice",
+            "options": [
+              "Plena relajación",
+              "Energía renovada",
+              "Orgullo y satisfacción"
+            ]
+          },
+          {
+            "id": "q4_futuro",
+            "question": "Si logras tu objetivo en los próximos meses, ¿cómo cambiaría tu vida o cómo te sentirías?",
+            "type": "single_choice",
+            "options": ["Más seguridad", "Mayor bienestar", "Disciplina diaria"]
+          }
         ]
       },
       {
-        "id": "q3",
-        "question": "Del 1 al 5, ¿qué tan seguro te sientes al acercarte a una máquina que nunca has usado?",
-        "type": "single_choice",
-        "options": [
-          "1 - Poco seguro, me da miedo usarla",
-          "2 - Con incertdumbre",
-          "3 - Sin incertidumbre pero con dudas",
-          "4 - Seguro pero con precaución",
-          "5 - Muy seguro"
-        ]
-      },
-      {
-        "id": "q4",
-        "question": "Cuando tomaste la decisión de pagar tu membresía, ¿qué pensamiento cruzó por tu mente?",
-        "type": "single_choice",
-        "options": [
-          "Esta vez sí lo logro",
-          "Es una inversión en mí",
-          "A ver cuánto duro",
-          "Es para mejorar mi salud",
-          "Otro"
-        ]
-      },
-      {
-        "id": "q5",
-        "question": "¿Qué situación te haría sentir más frustración dentro del gimnasio?",
-        "type": "single_choice",
-        "options": [
-          "Verlo demasiado lleno",
-          "No saber hacer un ejercicio",
-          "Estancarme sin resultados",
-          "No tener a quién preguntarle"
-        ]
-      },
-      {
-        "id": "q6",
-        "question": "¿Cuál fue el detonante principal que te hizo inscribirte hoy mismo?",
-        "type": "single_choice",
-        "options": [
-          "Salud",
-          "Estética",
-          "Un evento próximo",
-          "Recomendación",
-          "Manejo de estrés"
-        ]
-      },
-      {
-        "id": "q7",
-        "question": "Siendo totalmente realista con tu agenda, ¿cuántos días a la semana le dedicarás al gimnasio?",
-        "type": "single_choice",
-        "options": ["1-2 días", "3-4 días", "5+ días"]
-      },
-      {
-        "id": "q8",
-        "question": "¿Cómo prefieres llevar tu entrenamiento diario?",
-        "type": "single_choice",
-        "options": [
-          "Quiero que me digan exactamente qué hacer",
-          "Quiero una base pero con libertad de cambiar",
-          "Yo armo mis propias rutinas"
-        ]
-      },
-      {
-        "id": "q9",
-        "question": "¿Cuánto tiempo planeas quedarte en esta sesión de entrenamiento en promedio?",
-        "type": "single_choice",
-        "options": ["30-45 min", "1 hora", "Más de 1.5 horas"]
-      },
-      {
-        "id": "q10",
-        "question": "Si tuvieras que elegir una sola prioridad para tus primeros 30 días, ¿cuál sería?",
-        "type": "single_choice",
-        "options": [
-          "Crear el hábito",
-          "Aprender la técnica correcta",
-          "Ganar fuerza"
-        ]
-      },
-      {
-        "id": "q11",
-        "question": "Principalmente, ¿qué objetivo físico o de salud rige tu entrenamiento?",
-        "type": "single_choice",
-        "options": [
-          "Pérdida de grasa",
-          "Ganancia muscular",
-          "Recomposición",
-          "Rehabilitación funcional",
-          "Rendimiento deportivo"
-        ]
-      },
-      {
-        "id": "q12",
-        "question": "Además del físico, ¿qué área de tu estilo de vida quieres mejorar colateralmente?",
-        "type": "single_choice",
-        "options": [
-          "Calidad de sueño",
-          "Alimentación",
-          "Disciplina mental",
-          "Reducción de estrés"
-        ]
-      },
-      {
-        "id": "q13",
-        "question": "¿Has entrenado en un gimnasio o centro deportivo anteriormente de forma constante?",
-        "type": "boolean",
-        "options": ["Sí", "No"]
-      },
-      {
-        "id": "q13_yes_1",
-        "question": "¿Cuánto tiempo llevas entrenando de forma regular?",
-        "type": "single_choice",
-        "options": ["Menos de 6 meses", "1 a 2 años", "Más de 3 años"],
-        "dependsOn": {
-          "questionId": "q13",
-          "value": "Sí"
-        }
-      },
-      {
-        "id": "q13_yes_2",
-        "question": "¿Qué tipo de equipamiento o disciplina dominas mejor?",
-        "type": "single_choice",
-        "options": [
-          "Peso libre",
-          "Máquinas",
-          "Cardio",
-          "Entrenamiento funcional"
-        ],
-        "dependsOn": {
-          "questionId": "q13",
-          "value": "Sí"
-        }
-      },
-      {
-        "id": "q13_yes_3",
-        "question": "¿Alguna vez has sufrido una lesión o molestia grave entrenando?",
-        "type": "boolean",
-        "options": ["Sí", "No"],
-        "dependsOn": {
-          "questionId": "q13",
-          "value": "Sí"
-        }
-      },
-      {
-        "id": "q13_yes_4",
-        "question": "¿Cuál dirías que ha sido tu mayor logro o mejor experiencia física hasta ahora?",
-        "type": "text",
-        "dependsOn": {
-          "questionId": "q13",
-          "value": "Sí"
-        }
-      },
-      {
-        "id": "q13_no_1",
-        "question": "¿Practicas o has practicado alguna otra actividad física fuera del gimnasio?",
-        "type": "single_choice",
-        "options": [
-          "Deportes de equipo",
-          "Correr/caminar",
-          "Yoga/en casa",
-          "Ninguna"
-        ],
-        "dependsOn": {
-          "questionId": "q13",
-          "value": "No"
-        }
-      },
-      {
-        "id": "q13_no_2",
-        "question": "¿Qué es lo que más te ha dificultado mantener el hábito del ejercicio en el pasado?",
-        "type": "single_choice",
-        "options": [
-          "Falta de tiempo",
-          "No saber qué hacer",
-          "Aburrimiento",
-          "Falta de motivación"
-        ],
-        "dependsOn": {
-          "questionId": "q13",
-          "value": "No"
-        }
-      },
-      {
-        "id": "q13_no_3",
-        "question": "¿Tienes alguna condición física, dolor crónico o indicación médica que debamos conocer para cuidarte?",
-        "type": "text",
-        "dependsOn": {
-          "questionId": "q13",
-          "value": "No"
-        }
-      },
-      {
-        "id": "q14",
-        "question": "¿Conoces actualmente a alguien que ya entrene en esta misma unidad?",
-        "type": "boolean",
-        "options": ["Sí", "No"]
-      },
-      {
-        "id": "q14_yes_1",
-        "question": "¿Suelen entrenar juntos?",
-        "type": "boolean",
-        "options": ["Sí", "No"],
-        "dependsOn": {
-          "questionId": "q14",
-          "value": "Sí"
-        }
-      },
-      {
-        "id": "q15",
-        "question": "En el piso de pesas, ¿cómo describirías tu estilo social?",
-        "type": "single_choice",
-        "options": [
-          "Audífonos puestos y no hablo con nadie",
-          "Me gusta entrenar con un compañero",
-          "Me agrada interactuar y ayudar"
-        ]
-      },
-      {
-        "id": "q16",
-        "question": "Si existiera un grupo de personas en la app con tu mismo nivel y objetivos, ¿te gustaría ser parte para compartir retos y avances?",
-        "type": "single_choice",
-        "options": [
-          "Sí, me motiva mucho",
-          "Solo para leer consejos",
-          "No, prefiero mi espacio"
-        ]
-      },
-      {
-        "id": "q17",
-        "question": "¿Qué tipo de reconocimiento te motiva más cuando logras algo difícil?",
-        "type": "single_choice",
-        "options": [
-          "Insignias en la app",
-          "Reconocimiento del entrenador",
-          "Que mis amigos lo noten",
-          "Satisfacción personal silenciosa"
-        ]
-      },
-      {
-        "id": "q18",
-        "question": "Cuando tengas una duda sobre técnica o aforo, ¿a quién prefieres recurrir primero?",
-        "type": "single_choice",
-        "options": [
-          "Un coach presencial",
-          "Buscar en internet",
-          "Preguntarle a un conocido"
+        "id": "sec_3",
+        "title": "Sección 3: Experiencia y Compromiso",
+        "questions": [
+          {
+            "id": "q5_experiencia",
+            "question": "¿Cuál es tu nivel de experiencia entrenando?",
+            "type": "single_choice",
+            "options": ["Primera vez", "Ocasional", "Regular", "Experto"]
+          },
+          {
+            "id": "q5_primera_vez_hook",
+            "question": "Al ser tu primera vez, ¿te gustaría que la app te notifique guías paso a paso para usar las máquinas sin pena?",
+            "type": "single_choice",
+            "options": ["Sí, por favor", "No, prefiero explorar solo"],
+            "dependsOn": {
+              "questionId": "q5_experiencia",
+              "value": "Primera vez"
+            }
+          },
+          {
+            "id": "q5_experto_hook",
+            "question": "Como experto, ¿activamos notificaciones para avisarte cuando los racks de peso libre estén más despejados?",
+            "type": "single_choice",
+            "options": ["Sí, avísame", "No es necesario"],
+            "dependsOn": {
+              "questionId": "q5_experiencia",
+              "value": "Experto"
+            }
+          },
+          {
+            "id": "q6_agenda_dias",
+            "question": "Siendo realista con tu agenda, ¿cuántos días a la semana le dedicarás al gimnasio?",
+            "type": "single_choice",
+            "options": ["1-2 días", "3-4 días", "5+ días"]
+          },
+          {
+            "id": "q7_agenda_tiempo",
+            "question": "¿Cuánto tiempo estimas por sesión de entrenamiento?",
+            "type": "single_choice",
+            "options": ["Menos de 45 min", "De 45 a 90 min", "Más de 90 min"]
+          },
+          {
+            "id": "q8_obstaculos",
+            "question": "¿Qué obstáculos o situaciones te han dificultado mantener el hábito del ejercicio en el pasado?",
+            "type": "single_choice",
+            "options": [
+              "Falta de tiempo",
+              "Falta de motivación / aburrimiento",
+              "No saber qué rutinas hacer",
+              "Lesiones constantes"
+            ]
+          },
+          {
+            "id": "q9_medico",
+            "question": "¿Tienes alguna condición física, lesión o indicación médica que debamos conocer para cuidarte?",
+            "type": "text"
+          }
         ]
       }
     ]

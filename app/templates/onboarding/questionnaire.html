@@ -1,4 +1,12 @@
 {% extends "base.html" %} {% block content %}
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/style.css') }}"
+/>
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/registro.css') }}"
+/>
 
 <div class="progress-container">
   <div id="progress-bar" class="progress-bar"></div>
@@ -7,7 +15,9 @@
 <div id="form-wrapper">
   <div
     id="form-container"
+    data-items-per-page="2"
     data-json-url="{{ url_for('static', filename='data/questions.json') }}"
+    data-form-type="motivation"
   >
     <p
       id="loading-text"
@@ -27,15 +37,28 @@
     Terminar
   </button>
 </div>
+
+<dialog id="alert-dialog" class="custom-dialog validation-alert">
+  <div class="dialog-content">
+    <h2 style="color: #ff3333; margin-bottom: 15px">Aviso del Sistema</h2>
+    <p id="alert-message"></p>
+    <button
+      id="close-alert-btn"
+      class="btn-submit intense"
+      style="background-color: var(--border-color); color: var(--text-main)"
+    >
+      Entendido
+    </button>
+  </div>
+</dialog>
+
 <dialog id="success-dialog" class="custom-dialog">
   <div class="dialog-content">
     <h2 style="color: var(--primary-yellow); margin-bottom: 15px">
       ¡Perfil creado con éxito!
     </h2>
 
-    <p>
-      Bienvenido <strong id="user-name-display">[Nombre del usuario]</strong>.
-    </p>
+    <p>Bienvenido <strong id="user-name-display">Atleta</strong>.</p>
 
     <p style="margin-top: 15px">Desde la app podrás:</p>
     <ul

@@ -61,6 +61,20 @@ function renderNavegacionBifurcada(currentScreen) {
 }
 
 function navegarA(targetScreenId) {
+  // INTERCEPCIÓN DE SEGURIDAD: Impedir el acceso a perfil si no hay sesión activa
+  if (targetScreenId === "perfil") {
+    const perfilScreen = document.getElementById("screen-perfil");
+    if (perfilScreen) {
+      const isLoggedIn = perfilScreen.getAttribute("data-logged-in") === "true";
+
+      if (!isLoggedIn) {
+        // CORREGIDO: Mandamos al invitado directo al Login para romper el bucle de la IP
+        window.location.href = "/logout";
+        return; // Frena por completo la navegación visual
+      }
+    }
+  }
+
   document.querySelectorAll(".app-screen").forEach((screen) => {
     screen.classList.remove("active");
   });

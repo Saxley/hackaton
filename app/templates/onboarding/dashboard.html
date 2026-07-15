@@ -1,14 +1,18 @@
 {% extends "base.html" %} {% block content %}
 
-<!-- PANTALLA DE SERVICIOS -->
 <div id="screen-servicios" class="app-screen">
-  <h2 style="margin-bottom: 20px; font-weight: 800">Servicios Disponibles</h2>
-
-  <!-- Aquí JavaScript inyectará las categorías y carruseles -->
+  <h2 style="margin-bottom: 20px; font-weight: 800">Hub de Servicios</h2>
+  <div class="card" style="margin-bottom: 20px">
+    <p style="color: var(--primary-yellow); font-weight: bold">
+      Smart Fit Coach & Body
+    </p>
+    <p style="color: var(--text-muted); margin-top: 5px">
+      Agenda tus citas con nutriólogos o especialistas aquí.
+    </p>
+  </div>
   <div id="categorias-container"></div>
 </div>
 
-<!-- DIALOG MODAL DE DETALLE DE SERVICIO -->
 <dialog id="service-modal" class="custom-dialog">
   <div class="modal-wrapper">
     <h2
@@ -27,7 +31,6 @@
       ></p>
     </div>
 
-    <!-- Botones grandes fijos abajo del modal -->
     <div class="modal-actions">
       <button id="btn-go-to-service" class="btn-modal primary hidden">
         Ir a [Servicio]
@@ -53,7 +56,63 @@
 </dialog>
 
 <div id="screen-feed" class="app-screen active">
-  <h2 style="margin-bottom: 15px">Feed de Comunidad</h2>
+  <div
+    style="
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    "
+  >
+    <h2>Feed de Comunidad</h2>
+
+    <div class="nav-profile-section">
+      {% if session.get('user_name') %}
+      <a
+        href="#screen-perfil"
+        class="profile-icon-link"
+        title="Ver mi perfil"
+        style="text-decoration: none; display: flex; align-items: center"
+      >
+        <span class="profile-avatar" style="font-size: 20px">👤</span>
+        <span
+          class="profile-name"
+          style="
+            color: var(--text-main);
+            font-size: 14px;
+            margin-left: 5px;
+            font-weight: bold;
+          "
+          >{{ session['user_name'] }}</span
+        >
+      </a>
+      {% else %}
+      <a
+        href="{{ url_for('onboarding.index') }}"
+        class="profile-icon-link"
+        title="Iniciar sesión / Registrarse"
+        style="text-decoration: none; display: flex; align-items: center"
+      >
+        <span
+          class="profile-avatar guest-mode"
+          style="font-size: 20px; filter: grayscale(100%)"
+          >👤</span
+        >
+        <span
+          class="login-prompt-text"
+          style="
+            color: var(--primary-yellow);
+            font-size: 13px;
+            margin-left: 5px;
+            font-weight: 600;
+          "
+          >Iniciar sesión</span
+        >
+      </a>
+      {% endif %}
+    </div>
+  </div>
+
   <div class="card">
     <p style="color: var(--text-muted)">
       Aquí se mostrarán los videos verticales, retos e interacciones de tu
@@ -62,37 +121,51 @@
   </div>
 </div>
 
-<div id="screen-perfil" class="app-screen">
+<div
+  id="screen-perfil"
+  class="app-screen"
+  data-logged-in="{% if session.get('user_name') %}true{% else %}false{% endif %}"
+>
   <h2 style="margin-bottom: 15px">Mi Perfil</h2>
+
   <div class="card">
-    <p><strong>Nivel:</strong> Principiante</p>
+    <p><strong>Usuario:</strong> {{ session.get('user_name', 'Invitado') }}</p>
+    <p style="margin-top: 5px"><strong>Nivel:</strong> Principiante</p>
     <p style="color: var(--text-muted); margin-top: 10px">
       Logros alcanzados y estadísticas limpias.
     </p>
   </div>
-</div>
 
-<div id="screen-servicios" class="app-screen">
-  <h2 style="margin-bottom: 15px">Hub de Servicios</h2>
-  <div class="card">
-    <p style="color: var(--primary-yellow); font-weight: bold">
-      Smart Fit Coach & Body
-    </p>
-    <p style="color: var(--text-muted); margin-top: 5px">
-      Agenda tus citas con nutriólogos o especialistas aquí.
-    </p>
+  {% if session.get('user_name') %}
+  <div style="margin-top: 30px; text-align: center">
+    <a
+      href="{{ url_for('onboarding.logout') }}"
+      class="btn-submit intense"
+      style="
+        background-color: #ff3333;
+        color: #ffffff;
+        text-decoration: none;
+        display: inline-block;
+        width: 100%;
+        max-width: 200px;
+        padding: 10px;
+        border-radius: 8px;
+        font-weight: bold;
+        font-size: 14px;
+      "
+    >
+      Cerrar Sesión
+    </a>
   </div>
+  {% endif %}
 </div>
 
-<!-- BARRA DE NAVEGACIÓN DINÁMICA (BIFURCADA) -->
 <nav
   class="bottom-nav"
   id="dynamic-nav"
   data-img-path="{{ url_for('static', filename='img/') }}"
   data-services-url="{{ url_for('static', filename='data/servicios.json') }}"
->
-  <!-- Los botones se inyectarán de manera automática -->
-</nav>
+></nav>
 
 <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
 

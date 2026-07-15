@@ -430,3 +430,261 @@ input[type="range"] {
     background-color: var(--border-color);
     color: var(--text-main);
 }
+
+/*  INICIO  */
+/* =====================================================================
+   Estilos específicos de la Pantalla de Bienvenida (Welcome Screen)
+   ===================================================================== */
+
+.welcome-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: calc(100vh - 120px);
+    padding: 40px 20px;
+    text-align: center;
+}
+
+.welcome-hero {
+    margin-top: 40px;
+}
+
+.welcome-title {
+    font-size: 32px;
+    font-weight: 800;
+    text-transform: uppercase;
+    margin-bottom: 15px;
+    color: var(--text-main);
+}
+
+.welcome-title span {
+    color: var(--primary-yellow);
+}
+
+.welcome-subtitle {
+    color: var(--text-muted);
+    font-size: 16px;
+    line-height: 1.5;
+    max-width: 320px;
+    margin: 0 auto;
+}
+
+.welcome-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+/* Botones adaptados a la UI responsiva */
+.btn-welcome {
+    display: block;
+    width: 100%;
+    padding: 16px;
+    font-size: 16px;
+    font-weight: 700;
+    border-radius: 8px;
+    text-decoration: none;
+    text-align: center;
+    transition: transform 0.1s ease;
+}
+
+.btn-welcome:active {
+    transform: scale(0.98);
+}
+
+.btn-welcome.primary {
+    background-color: var(--primary-yellow);
+    color: #000;
+    border: none;
+}
+
+.btn-welcome.secondary {
+    background-color: transparent;
+    color: var(--text-main);
+    border: 2px solid var(--border-color);
+}
+
+.btn-welcome.link {
+    background-color: transparent;
+    color: var(--primary-yellow);
+    font-size: 14px;
+    font-weight: 500;
+    margin-top: 5px;
+}
+
+/* Divisor intermedio */
+.divider-text {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 14px;
+    margin: 10px 0;
+}
+
+.divider-text::before,
+.divider-text::after {
+    content: "";
+    flex: 1;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.divider-text:not(:empty)::before {
+    margin-right: 0.5em;
+}
+
+.divider-text:not(:empty)::after {
+    margin-left: 0.5em;
+}
+
+/* =====================================================================
+   Estilos específicos del Formulario de Registro (Registration Screen)
+   ===================================================================== */
+
+.form-header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.form-header h2 {
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.form-header h2 span {
+    color: var(--primary-yellow);
+}
+
+.form-header p {
+    color: var(--text-muted);
+    font-size: 14px;
+    margin-top: 5px;
+}
+
+/* Barra de progreso modular */
+.progress-container {
+    background-color: var(--border-color);
+    height: 6px;
+    border-radius: 3px;
+    margin-bottom: 25px;
+    overflow: hidden;
+}
+
+#progress-bar {
+    background-color: var(--primary-yellow);
+    height: 100%;
+    width: 0%;
+    transition: width 0.3s ease;
+}
+
+#loading-text {
+    text-align: center;
+    color: var(--primary-yellow);
+}
+
+/* Detalles del Dialog de Registro */
+.custom-dialog h2 {
+    color: var(--primary-yellow);
+    margin-bottom: 15px;
+}
+
+.custom-dialog .dialog-note {
+    color: var(--text-muted);
+    margin-top: 10px;
+    font-size: 14px;
+}
+
+.btn-submit.intense {
+    margin-top: 20px;
+}
+
+/* --- Integración de los Campos de Contraseña --- */
+.password-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    background-color: var(--bg-card);
+    /* Ajusta al color de fondo de tus inputs normales */
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    transition: border-color 0.2s ease;
+}
+
+.password-wrapper:focus-within {
+    border-color: var(--primary-yellow);
+}
+
+.password-wrapper input {
+    width: 100%;
+    padding: 12px 40px 12px 12px;
+    /* Espacio extra a la derecha para el icono */
+    background: transparent !important;
+    /* Evita parches de color */
+    border: none !important;
+    /* Quitamos el borde propio para usar el del wrapper */
+    color: var(--text-main);
+    font-size: 16px;
+    outline: none;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 14px;
+    cursor: pointer;
+    color: var(--text-muted);
+    font-size: 16px;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Modal personalizado para alertas de validación */
+.custom-dialog.validation-alert h2 {
+    color: #ff3333 !important;
+}
+
+/* =====================================================================
+   Estilos específicos de la Pantalla de Login (Authentication Screen)
+   ===================================================================== */
+
+.login-box {
+    max-width: 420px;
+    margin: 40px auto;
+}
+
+.card-login {
+    margin-bottom: 20px !important;
+    display: block !important;
+    /* Asegura que se muestren de inmediato sin paginado */
+}
+
+.login-helpers {
+    text-align: right;
+    margin-top: -5px;
+    margin-bottom: 25px;
+}
+
+.helper-link {
+    color: var(--text-muted);
+    font-size: 13px;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.helper-link:hover {
+    color: var(--primary-yellow);
+    text-decoration: underline;
+}
+
+.auth-actions {
+    margin-top: 15px;
+}
+
+.auth-actions .btn-submit {
+    width: 100%;
+}

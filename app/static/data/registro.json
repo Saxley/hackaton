@@ -1,0 +1,117 @@
+{
+  "form": {
+    "title": "Registro de Cuenta Smart Fit",
+    "redirectUrl": "/dashboard",
+    "sections": [
+      {
+        "id": "sec_cuenta",
+        "title": "Página 1: Crear Cuenta",
+        "questions": [
+          {
+            "id": "reg_nombre",
+            "question": "Nombre y Apellidos",
+            "type": "text",
+            "placeholder": "Ej. Juan Pérez"
+          },
+          {
+            "id": "reg_email",
+            "question": "Correo Electrónico",
+            "type": "text",
+            "placeholder": "tu@correo.com"
+          },
+          {
+            "id": "reg_password",
+            "question": "Contraseña",
+            "type": "text",
+            "placeholder": "Crea una contraseña segura"
+          },
+          {
+            "id": "reg_password_confirm",
+            "question": "Confirmar Contraseña",
+            "type": "text",
+            "placeholder": "Repite tu contraseña"
+          }
+        ]
+      },
+      {
+        "id": "sec_detonantes",
+        "title": "Página 2: Tu Perfil Fitness",
+        "questions": [
+          {
+            "id": "reg_detonante",
+            "question": "¿Cuál fue el detonante principal que te hizo inscribirte hoy mismo?",
+            "type": "single_choice",
+            "options": [
+              "Mejorar salud y vitalidad",
+              "Cambiar físico / Estética",
+              "Manejar el estrés diario",
+              "Recomendación / Evento próximo"
+            ]
+          },
+          {
+            "id": "reg_objetivo",
+            "question": "¿Cuál es tu principal enfoque o meta física?",
+            "type": "single_choice",
+            "options": [
+              "Pérdida de grasa y definición",
+              "Ganancia muscular y fuerza",
+              "Recomposición corporal",
+              "Acondicionamiento general"
+            ]
+          },
+          {
+            "id": "reg_estilo_entreno",
+            "question": "¿Cómo prefieres llevar tu entrenamiento diario?",
+            "type": "single_choice",
+            "options": [
+              "Instrucciones detalladas (Que me digan qué hacer)",
+              "Base con libertad (Seguir una guía flexible)",
+              "Rutinas propias (Yo controlo mis ejercicios)"
+            ]
+          },
+          {
+            "id": "reg_social",
+            "question": "En el piso de pesas, ¿cómo describirías tu estilo social?",
+            "type": "single_choice",
+            "options": [
+              "Independiente con audífonos puestos",
+              "Me gusta entrenar con un compañero",
+              "Abierto a interactuar y conocer gente"
+            ]
+          },
+          {
+            "id": "reg_comunidad",
+            "question": "¿Te gustaría formar parte de una comunidad digital con personas de tu mismo nivel?",
+            "type": "single_choice",
+            "options": [
+              "Sí, me motiva compartir retos",
+              "Solo para observar consejos",
+              "No, prefiero mantener mi espacio"
+            ]
+          },
+          {
+            "id": "reg_motivador",
+            "question": "¿Qué tipo de reconocimiento te motiva más al lograr algo difícil?",
+            "type": "single_choice",
+            "options": [
+              "Insignias y logros visuales en la app",
+              "Palabras de apoyo de un coach",
+              "Notar los cambios físicos en el espejo"
+            ]
+          },
+          {
+            "id": "reg_retencion",
+            "question": "¿Qué es lo que más valorarías para entrenar con nosotros durante todo un año?",
+            "type": "single_choice",
+            "options": [
+              "Rutinas dinámicas que eviten el aburrimiento",
+              "Flexibilidad de horarios y sucursales despejadas",
+              "Seguimiento estricto de mis métricas",
+              "Comunidad y retos grupales"
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

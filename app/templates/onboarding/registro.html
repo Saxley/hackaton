@@ -1,0 +1,75 @@
+{% extends "base.html" %} {% block content %}
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/style.css') }}"
+/>
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/registro.css') }}"
+/>
+
+<div class="form-container-main">
+  <div class="form-header">
+    <h2>Únete a <span>Nosotros</span></h2>
+    <p>Completa tus datos para personalizar tu experiencia.</p>
+  </div>
+
+  <div class="progress-container">
+    <div id="progress-bar"></div>
+  </div>
+
+  <div id="form-wrapper">
+    <div
+      id="form-container"
+      data-json-url="{{ url_for('static', filename='data/registro.json') }}"
+      data-items-per-page="2"
+    >
+      <p id="loading-text">Preparando entorno seguro...</p>
+    </div>
+
+    <div class="nav-buttons">
+      <button id="btn-prev" class="btn-nav secondary" style="display: none">
+        Atrás
+      </button>
+      <button id="btn-next" class="btn-nav primary">Siguiente</button>
+      <button id="submit-btn" class="btn-submit" style="display: none">
+        Crear mi Cuenta
+      </button>
+    </div>
+  </div>
+</div>
+
+<dialog id="success-dialog" class="custom-dialog">
+  <div class="dialog-content">
+    <h2>¡Cuenta Creada!</h2>
+    <p>
+      Tu registro se ha completado con éxito y tus datos han sido encriptados.
+    </p>
+    <p class="dialog-note">
+      Ahora puedes ingresar a la plataforma y revisar tus beneficios exclusivos.
+    </p>
+    <button
+      id="close-dialog-btn"
+      class="btn-submit intense"
+      onclick="window.location.href = '/motivacion-formulario'"
+    >
+      Continuar al Cuestionario
+    </button>
+  </div>
+</dialog>
+
+<dialog id="alert-dialog" class="custom-dialog validation-alert">
+  <div class="dialog-content">
+    <h2 style="color: #ff3333; margin-bottom: 15px">Aviso del Sistema</h2>
+    <p id="alert-message"></p>
+    <button
+      id="close-alert-btn"
+      class="btn-submit intense"
+      style="background-color: var(--border-color); color: var(--text-main)"
+    >
+      Entendido
+    </button>
+  </div>
+</dialog>
+<script src="{{ url_for('static', filename='js/questionnaire.js') }}"></script>
+{% endblock %}
