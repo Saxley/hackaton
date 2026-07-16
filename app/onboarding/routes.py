@@ -293,17 +293,21 @@ def get_profile_data():
             "racha": 0,
             "total_entrenamientos": 0,
             "ultima_fecha_actividad": None,
-            "seguimiento_privado": []
+            "seguimiento_privado": [],
+            "red_sincronizada": [] # Nueva lista de control de red
         }
         guardar_datos_comunidad(db)
         
     user_data = db["usuarios"][username]
+    # Asegurar retrocompatibilidad si el nodo no existía en registros previos
+    red = user_data.setdefault("red_sincronizada", [])
     
     return jsonify({
         "status": "success",
         "racha": user_data["racha"],
         "entrenamientos": user_data["total_entrenamientos"],
         "seguimiento": user_data["seguimiento_privado"],
+        "red_sincronizada": red,
         "feed": db["feed_publico"]
     })
 
@@ -402,3 +406,92 @@ def profile_action():
         "seguimiento": user_profile["seguimiento_privado"],
         "feed": db["feed_publico"]
     })
+
+@onboarding_bp.route('/api/sincronizar/<target_user>', methods=['GET']) # <-- Cambiado a GET
+def sincronizar_usuario(target_user):
+    """
+    Registra una vinculación de red bidireccional y permanente 
+    al ser escaneada mediante una petición GET de cámara.
+    """
+    if 'user_name' not in session:
+        # Si no ha iniciado sesión, lo mandamos al login primero
+        return redirect(url_for('onboarding.login'))
+        
+    username = session['user_name']
+    if username == target_user:
+        # Evitar sincronizarse consigo mismo
+        return redirect(url_for('onboarding.dashboard'))
+
+    db = cargar_datos_comunidad()
+    
+    perfil_origen = db["usuarios"].setdefault(username, {})
+    perfil_destino = db["usuarios"].setdefault(target_user, {})
+    
+    red_origen = perfil_origen.setdefault("red_sincronizada", [])
+    red_destino = perfil_destino.setdefault("red_sincronizada", [])
+    
+    cambio = False
+    
+    if target_user not in red_origen:
+        red_origen.append(target_user)
+        cambio = True
+        
+    if username not in red_destino:
+        red_destino.append(username)
+        cambio = True
+        
+    if cambio:
+        guardar_datos_comunidad(db)
+        
+    # Redirige de golpe al dashboard del usuario que escaneó; 
+    # el Long Polling del otro usuario detectará el cambio y abrirá el modal de éxito en su pantalla.
+    return redirect(url_for('onboarding.dashboard'))
+
+@onboarding_bp.route('/api/like-post', methods=['POST'])
+def like_post():
+    """Registra un like en una publicación del feed público."""
+    data = request.json or {}
+    post_id = data.get('post_id') # Usaremos el index o timestamp como ID
+    
+    db = cargar_datos_comunidad()
+    feed = db.get("feed_publico", [])
+    
+    if 0 <= post_id < len(feed):
+        post = feed[post_id]
+        likes = post.setdefault("likes", 0)
+        post["likes"] = likes + 1
+        guardar_datos_comunidad(db)
+        return jsonify({"status": "success", "likes": post["likes"]})
+        
+    return jsonify({"status": "error", "message": "Publicación no encontrada"}), 404
+
+
+@onboarding_bp.route('/api/comment-post', methods=['POST'])
+def comment_post():
+    """Registra un comentario si el usuario está autenticado."""
+    if 'user_name' not in session:
+        return jsonify({"status": "error", "message": "No autorizado"}), 401
+        
+    username = session['user_name']
+    data = request.json or {}
+    post_id = data.get('post_id')
+    comentario_texto = sanitizar_texto(data.get('comment', ''))
+    
+    if not comentario_texto:
+        return jsonify({"status": "error", "message": "El comentario no puede estar vacío"}), 400
+        
+    db = cargar_datos_comunidad()
+    feed = db.get("feed_publico", [])
+    
+    if 0 <= post_id < len(feed):
+        post = feed[post_id]
+        comments_list = post.setdefault("comentarios", [])
+        comments_list.append({
+            "autor": username,
+            "texto": comentario_texto,
+            "fecha": datetime.now().strftime('%Y-%m-%d %H:%M')
+        })
+        guardar_datos_comunidad(db)
+        return jsonify({"status": "success", "comentarios": comments_list})
+        
+    return jsonify({"status": "error", "message": "Publicación no encontrada"}), 404

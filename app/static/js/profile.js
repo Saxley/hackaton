@@ -1,12 +1,5 @@
-/**
- * =====================================================================
- * PROFILE & COMMUNITY MANAGER MODULE (CONNECTED ENGINE)
- * =====================================================================
- */
-
 class ProfileDashboardEngine {
   constructor() {
-    // Elementos Métricas
     this.rachaDisplay = document.querySelector(
       ".metric-card:nth-child(1) .metric-value",
     );
@@ -15,12 +8,21 @@ class ProfileDashboardEngine {
     );
     this.inputActividad = document.getElementById("input-actividad");
     this.btnAddActividad = document.getElementById("btn-registrar-actividad");
-
-    // Contenedores Pestañas
     this.trackingContainer = document.getElementById("private-posts-container");
-    this.feedContainer = document.querySelector("#screen-feed .card");
+    this.feedContainer = document.getElementById("feed-posts-wrapper");
 
-    // Elementos Modal Publicar
+    // Modales QR y Éxito de Sincronización
+    this.btnTriggerQr = document.getElementById("btn-trigger-qr-modal");
+    this.qrModal = document.getElementById("qr-viewer-modal");
+    this.btnCloseQr = document.getElementById("btn-close-qr-modal");
+
+    this.syncSuccessModal = document.getElementById("sync-success-modal");
+    this.syncMessageText = document.getElementById("sync-success-message");
+    this.btnCloseSyncSuccess = document.getElementById(
+      "btn-close-sync-success",
+    );
+
+    // Modales Publicación y Comentarios
     this.fab = document.getElementById("fab-publish");
     this.modal = document.getElementById("publish-modal");
     this.closeBtn = document.getElementById("btn-close-publish");
@@ -28,9 +30,18 @@ class ProfileDashboardEngine {
     this.textArea = document.getElementById("publish-text");
     this.privacySelect = document.getElementById("publish-privacy");
 
+    this.commentModal = document.getElementById("comment-modal");
+    this.btnSubmitComment = document.getElementById("btn-submit-comment");
+    this.btnCloseComment = document.getElementById("btn-close-comment");
+    this.inputNewComment = document.getElementById("input-new-comment");
+    this.modalCommentsList = document.getElementById("modal-comments-list");
+    this.activePostIdForComment = null;
+
     this.csrfToken = document
       .querySelector('meta[name="csrf-token"]')
       .getAttribute("content");
+    this.redSincronizada = [];
+    this.longPollingInterval = null;
 
     if (document.getElementById("screen-perfil")) {
       this.init();
@@ -38,107 +49,245 @@ class ProfileDashboardEngine {
   }
 
   init() {
-    // Carga inicial asíncrona de datos desde el servidor
-    this.cargarDatosServidor();
+    this.cargarDatosServidor(true); // Carga inicial limpia
 
-    // Escuchar registro de actividades
-    if (this.btnAddActividad) {
-      this.btnAddActividad.addEventListener("click", () =>
-        this.registrarActividad(),
+    // Eventos del Visor QR Modificado
+    if (this.btnTriggerQr) {
+      this.btnTriggerQr.addEventListener("click", () => {
+        this.generarCodigoQR();
+        this.qrModal.showModal();
+        this.activarEscuchaTiempoReal(); // Comienza a oír si alguien lo escanea
+      });
+    }
+    if (this.btnCloseQr) {
+      this.btnCloseQr.addEventListener("click", () => {
+        this.qrModal.close();
+        clearInterval(this.longPollingInterval); // Detiene consumo si cierra el modal
+      });
+    }
+    if (this.btnCloseSyncSuccess) {
+      this.btnCloseSyncSuccess.addEventListener("click", () =>
+        this.syncSuccessModal.close(),
       );
     }
 
-    // Escuchar cambios en la selección de foto para feedback en el modal
+    // Configuración input file
     const fileInput = document.getElementById("publish-file");
     const fileText = document.getElementById("file-chosen-text");
     if (fileInput && fileText) {
       fileInput.addEventListener("change", () => {
         fileText.innerText =
-          fileInput.files.length > 0
-            ? fileInput.files[0].name
-            : "Ninguna foto seleccionada";
+          fileInput.files.length > 0 ? fileInput.files[0].name : "Ninguna foto";
       });
     }
 
-    // Eventos del Modal FAB
     if (this.fab) {
       this.fab.addEventListener("click", () => {
         this.textArea.value = "";
         if (fileInput) fileInput.value = "";
-        if (fileText) fileText.innerText = "Ninguna foto seleccionada";
         this.modal.showModal();
       });
       this.closeBtn.addEventListener("click", () => this.modal.close());
       this.submitBtn.addEventListener("click", () => this.enviarPublicacion());
     }
+
+    if (this.btnCloseComment)
+      this.btnCloseComment.addEventListener("click", () =>
+        this.commentModal.close(),
+      );
+    if (this.btnSubmitComment)
+      this.btnSubmitComment.addEventListener("click", () =>
+        this.ejecutarComentario(),
+      );
   }
 
-  cargarDatosServidor() {
+  generarCodigoQR() {
+    const qrContainer = document.getElementById("qrcode-canvas");
+    const usernameElement = document.getElementById("profile-username-title");
+    if (!qrContainer || !usernameElement) return;
+
+    const username = usernameElement.dataset.username;
+    if (!username) return;
+
+    qrContainer.innerHTML = "";
+    const syncUrl = `${window.location.origin}/api/sincronizar/${encodeURIComponent(username)}`;
+
+    new QRCode(qrContainer, {
+      text: syncUrl,
+      width: 180,
+      height: 180,
+      colorDark: "#000000",
+      colorLight: "#ffffff",
+    });
+  }
+
+  activarEscuchaTiempoReal() {
+    // Escucha en segundo plano cada 3 segundos si la red aumentó de tamaño
+    clearInterval(this.longPollingInterval);
+    this.longPollingInterval = setInterval(() => {
+      fetch("/api/profile-data")
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.status === "success") {
+            const nuevaRed = data.red_sincronizada || [];
+            // Si el tamaño de la lista creció significa que alguien escaneó el QR exitosamente
+            if (nuevaRed.length > this.redSincronizada.length) {
+              clearInterval(this.longPollingInterval);
+              this.qrModal.close();
+
+              const nuevoAmigo =
+                nuevaRed.filter((x) => !this.redSincronizada.includes(x))[0] ||
+                "Un atleta";
+              this.syncMessageText.innerText = `Conexión realizada con éxito. Ahora compartes red de comentarios mutua con ${nuevoAmigo}.`;
+
+              this.syncSuccessModal.showModal();
+              this.redSincronizada = nuevaRed;
+              this.renderMetricsAndLists(data);
+            }
+          }
+        });
+    }, 3000);
+  }
+
+  cargarDatosServidor(esInicial = false) {
     fetch("/api/profile-data")
       .then((res) => res.json())
       .then((data) => {
         if (data.status === "success") {
+          this.redSincronizada = data.red_sincronizada || [];
           this.renderMetricsAndLists(data);
         }
-      })
-      .catch((err) => console.error("Error al sincronizar perfil:", err));
+      });
   }
 
   renderMetricsAndLists(data) {
-    // Actualizar contadores visuales
     if (this.rachaDisplay) this.rachaDisplay.innerText = `${data.racha} Días`;
     if (this.entrenamientosDisplay)
       this.entrenamientosDisplay.innerText = data.entrenamientos;
 
-    // Renderizar pestaña Seguimiento Privado
     if (this.trackingContainer) {
       if (data.seguimiento.length === 0) {
-        this.trackingContainer.innerHTML = `<p style="text-align: center; color: var(--text-muted); font-size: 13px;">Aquí verás tus actividades y bitácoras marcadas como privadas.</p>`;
+        this.trackingContainer.innerHTML = `<p style="text-align: center; color: var(--text-muted); font-size: 13px;">Sin bitácoras privadas.</p>`;
       } else {
         this.trackingContainer.innerHTML = data.seguimiento
           .map(
             (item) => `
-                    <div class="card" style="background: #151515; margin-bottom: 8px; border-left: 3px solid var(--primary-yellow);">
-                        <div style="display:flex; justify-content:space-between; font-size:11px; color:var(--text-muted); margin-bottom:4px;">
-                            <span>${item.tipo === "actividad" ? "💪 Actividad Guardada" : "🔒 Historial"}</span>
-                            <span>${item.fecha}</span>
-                        </div>
-                        <p style="color:var(--text-main); font-size:13px; margin-bottom: ${item.imagen ? "8px" : "0px"};">${item.detalle}</p>
-                        ${item.imagen ? `<img src="${item.imagen}" style="width:100%; max-height:200px; object-fit:cover; border-radius:6px; border: 1px solid var(--border-color);" alt="Avance">` : ""}
-                    </div>
-                `,
+          <div class="card" style="background: #151515; margin-bottom: 8px; border-left: 3px solid var(--primary-yellow);">
+              <p style="font-size:13px;">${item.detalle}</p>
+              ${item.imagen ? `<img src="${item.imagen}" style="width:100%; margin-top:5px; border-radius:6px;">` : ""}
+          </div>
+        `,
           )
           .join("");
       }
     }
 
-    // Renderizar Feed de Comunidad Público (sin romper la estructura base)
     if (this.feedContainer) {
-      const listHtml = data.feed
+      if (data.feed.length === 0) {
+        this.feedContainer.innerHTML = `<p style="color: var(--text-muted)">No hay publicaciones públicas.</p>`;
+        return;
+      }
+
+      this.feedContainer.innerHTML = data.feed
+        .map((post, idx) => {
+          const estaSincronizado = this.redSincronizada.includes(post.autor);
+          const postLikes = post.likes || 0;
+
+          return `
+          <div class="post-item" style="border-bottom: 1px solid var(--border-color); padding: 15px 0; text-align:left;">
+              <strong style="color: var(--primary-yellow);">${post.autor}</strong>
+              <p style="margin: 5px 0; font-size:13px;">${post.texto}</p>
+              ${post.imagen ? `<img src="${post.imagen}" style="width:100%; max-height:220px; object-fit:cover; border-radius:6px; margin-bottom:8px;">` : ""}
+              
+              <div style="display: flex; justify-content: center; gap: 40px; margin-top: 10px; background: #111; padding: 6px; border-radius: 20px;">
+                  <button onclick="window.profileEngine.ejecutarLike(${idx})" style="background:none; border:none; color:#fff; cursor:pointer; font-size:14px; display:flex; align-items:center; gap:5px;">
+                      💪 <span id="like-count-${idx}">${postLikes}</span>
+                  </button>
+
+                  ${
+                    estaSincronizado
+                      ? `
+                    <button onclick="window.profileEngine.abrirModalComentarios(${idx}, ${JSON.stringify(post.comentarios || [])})" style="background:none; border:none; color:var(--primary-yellow); cursor:pointer; font-size:14px;">
+                        💬 Comentar
+                    </button>
+                  `
+                      : `
+                    <span style="color:var(--text-muted); font-size:11px; display:flex; align-items:center;">🔒 Red Privada</span>
+                  `
+                  }
+              </div>
+          </div>
+        `;
+        })
+        .join("");
+    }
+  }
+
+  ejecutarLike(postId) {
+    fetch("/api/like-post", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": this.csrfToken,
+      },
+      body: JSON.stringify({ post_id: postId }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.status === "success") {
+          document.getElementById(`like-count-${postId}`).innerText =
+            data.likes;
+        }
+      });
+  }
+
+  abrirModalComentarios(postId, comentarios) {
+    this.activePostIdForComment = postId;
+    this.inputNewComment.value = "";
+
+    if (comentarios.length === 0) {
+      this.modalCommentsList.innerHTML = `<p style="color:var(--text-muted); font-size:12px; text-align:center;">Sin comentarios aún.</p>`;
+    } else {
+      this.modalCommentsList.innerHTML = comentarios
         .map(
-          (post) => `
-                <div class="post-item" style="border-bottom: 1px solid var(--border-color); padding: 12px 0;">
-                    <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom: 6px;">
-                        <strong style="color: var(--primary-yellow);">${post.autor}</strong>
-                        <span style="color:var(--text-muted); font-size:11px;">${post.fecha}</span>
-                    </div>
-                    <p style="color:var(--text-main); font-size:13px; margin-bottom: ${post.imagen ? "8px" : "0px"};">${post.texto}</p>
-                    ${post.imagen ? `<img src="${post.imagen}" style="width:100%; max-height:220px; object-fit:cover; border-radius:6px; border: 1px solid var(--border-color);" alt="Foto Avance">` : ""}
-                </div>
-            `,
+          (c) => `
+        <div style="background:#222; padding:6px; margin-bottom:5px; border-radius:4px; font-size:12px;">
+          <strong style="color:var(--primary-yellow);">${c.autor}:</strong> ${c.texto}
+        </div>
+      `,
         )
         .join("");
-
-      this.feedContainer.innerHTML =
-        listHtml ||
-        `<p style="color: var(--text-muted)">Aquí se mostrarán los videos verticales, retos e interacciones de tu Círculo.</p>`;
     }
+    this.commentModal.showModal();
+  }
+
+  ejecutarComentario() {
+    const comentario = this.inputNewComment.value.trim();
+    if (!comentario || this.activePostIdForComment === null) return;
+
+    fetch("/api/comment-post", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": this.csrfToken,
+      },
+      body: JSON.stringify({
+        post_id: this.activePostIdForComment,
+        comment: comentario,
+      }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.status === "success") {
+          this.commentModal.close();
+          this.cargarDatosServidor();
+        }
+      });
   }
 
   registrarActividad() {
     const detalle = this.inputActividad.value.trim();
     if (!detalle) return;
-
     fetch("/api/profile-action", {
       method: "POST",
       headers: {
@@ -146,53 +295,36 @@ class ProfileDashboardEngine {
         "X-CSRFToken": this.csrfToken,
       },
       body: JSON.stringify({ type: "activity", detail: detalle }),
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.status === "success") {
-          this.inputActividad.value = "";
-          this.renderMetricsAndLists(data);
-        }
-      });
+    }).then(() => {
+      this.inputActividad.value = "";
+      this.cargarDatosServidor();
+    });
   }
 
   enviarPublicacion() {
     const texto = this.textArea.value.trim();
     const privacidad = this.privacySelect.value;
     const fileInput = document.getElementById("publish-file");
-
     if (!texto && (!fileInput || fileInput.files.length === 0)) return;
 
-    // Se implementa FormData para empaquetar de forma binaria el archivo adjunto
     const formData = new FormData();
     formData.append("type", "post");
     formData.append("text", texto);
     formData.append("privacy", privacidad);
-
-    if (fileInput && fileInput.files.length > 0) {
+    if (fileInput && fileInput.files.length > 0)
       formData.append("foto", fileInput.files[0]);
-    }
 
     fetch("/api/profile-action", {
       method: "POST",
-      headers: {
-        "X-CSRFToken": this.csrfToken,
-        // IMPORTANTE: Al usar FormData no se declara Content-Type manualmente
-      },
+      headers: { "X-CSRFToken": this.csrfToken },
       body: formData,
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.status === "success") {
-          this.modal.close();
-          this.renderMetricsAndLists(data);
-        }
-      })
-      .catch((err) => console.error("Error al enviar post:", err));
+    }).then(() => {
+      this.modal.close();
+      this.cargarDatosServidor();
+    });
   }
 }
 
-// Control modular de cambio visual de pestañas estéticas
 class ProfileTabsManager {
   constructor() {
     this.tabs = document.querySelectorAll(".tab-btn");
@@ -214,5 +346,5 @@ class ProfileTabsManager {
 
 document.addEventListener("DOMContentLoaded", () => {
   new ProfileTabsManager();
-  new ProfileDashboardEngine();
+  window.profileEngine = new ProfileDashboardEngine();
 });
