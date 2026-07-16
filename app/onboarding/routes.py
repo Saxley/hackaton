@@ -8,13 +8,24 @@ import html
 # Importamos 'session' para mantener el rastreo del usuario conectado
 from flask import Blueprint, render_template, request, jsonify, redirect, url_for, session
 from . import onboarding_bp
+from werkzeug.utils import secure_filename
+from datetime import datetime, timedelta
 
+POSTS_ACTIVITIES_FILE = 'posts_activities.json'
 RESPONSES_FILE = 'responses.json'
 APERTURAS_JSON = os.path.join(os.path.dirname(__file__), '../static/data/registro_aperturas.json')
+
+# Configuración corporativa de subidas multimedia
+UPLOAD_FOLDER = os.path.join('app', 'static', 'uploads')
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
 # =====================================================================
 # FUNCIONES AUXILIARES DE SEGURIDAD Y PERFIL
 # =====================================================================
+def allowed_file(filename):
+    """Valida que la extensión del archivo sea una imagen soportada."""
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
 def sanitizar_texto(texto):
     if not texto: return ""
     texto_limpio = texto.strip()
@@ -57,6 +68,19 @@ def marcar_dispositivo_como_abierto(ip):
         with open(APERTURAS_JSON, 'w', encoding='utf-8') as f:
             json.dump(aperturas, f, indent=4)
 
+def cargar_datos_comunidad():
+    if not os.path.exists(POSTS_ACTIVITIES_FILE):
+        return {"usuarios": {}, "feed_publico": []}
+    try:
+        with open(POSTS_ACTIVITIES_FILE, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except Exception:
+        return {"usuarios": {}, "feed_publico": []}
+
+def guardar_datos_comunidad(data):
+    with open(POSTS_ACTIVITIES_FILE, 'w', encoding='utf-8') as f:
+        json.dump(data, f, indent=4, ensure_ascii=False)
+
 # =====================================================================
 # 1. CONTROLADORES DE VISTAS (RUTAS)
 # =====================================================================
@@ -87,7 +111,6 @@ def registro_formulario():
 
 @onboarding_bp.route('/motivacion-formulario', methods=['GET'])
 def motivacion_formulario():
-    # Si intentan entrar directo sin registrarse ni logearse, al login
     if 'user_name' not in session:
         return redirect(url_for('onboarding.login'))
     return render_template('onboarding/questionnaire.html')
@@ -103,10 +126,6 @@ def dashboard():
 
 @onboarding_bp.route('/api/auth-login', methods=['POST'])
 def auth_login():
-    """
-    CAMINO B: Inicia sesión -> Valida por user_name si tiene el formulario
-    de motivación completado. Si no, va al formulario; si sí, al feed.
-    """
     try:
         data = request.json or {}
         identity = data.get('identity', '').strip()
@@ -120,7 +139,6 @@ def auth_login():
 
         hashed_input_password = hashlib.sha256(password.encode('utf-8')).hexdigest()
 
-        # Buscar la cuenta base del usuario
         cuenta_usuario = None
         for u in responses:
             if u.get('reg_email', '').lower() == identity.lower() or u.get('user_name', '') == identity:
@@ -131,11 +149,8 @@ def auth_login():
         if not cuenta_usuario:
             return jsonify({"status": "error", "message": "Usuario o contraseña incorrectos."}), 401
 
-        # Seteamos el user_name en la sesión activa del servidor
         session['user_name'] = cuenta_usuario['user_name']
 
-        # COMPROBACIÓN REGLA: Buscar si existe OTRO registro en el JSON que contenga las respuestas
-        # de motivación asociadas a este mismo 'user_name'
         tiene_motivacion = any(
             m.get('user_name') == cuenta_usuario['user_name'] and 'q1_motivacion' in m 
             for m in responses
@@ -152,10 +167,6 @@ def auth_login():
 
 @onboarding_bp.route('/api/submit', methods=['POST'])
 def submit():
-    """
-    Maneja el envío de AMBOS formularios identificando la procedencia 
-    gracias al rastreo por user_name en sesión.
-    """
     try:
         data = request.json
         if not data:
@@ -167,22 +178,17 @@ def submit():
                 try: responses = json.load(f)
                 except json.JSONDecodeError: pass
 
-        # -----------------------------------------------------------------
-        # CASO 1: VIENE DEL FORMULARIO DE REGISTRO (CREACIÓN DE CUENTA)
-        # -----------------------------------------------------------------
         if 'reg_password' in data:
             email_peticion = data.get('reg_email', '').strip()
             password_peticion = data.get('reg_password', '')
             nombre_peticion = data.get('reg_nombre', '').strip()
 
-            # REGLA EXCLUSIVA: Validar que solo contenga letras y espacios (evita números, @, etc.)
             if not re.match(r"^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s]+$", nombre_peticion):
                 return jsonify({
                     "status": "error", 
                     "message": "El campo Nombre y Apellido solo puede contener letras y espacios."
                 }), 400
 
-            # Transformar a mayúsculas el nombre completo respetando acentos y la Ñ
             data['reg_nombre'] = nombre_peticion.upper()
 
             if any(u.get('reg_email', '').lower() == email_peticion.lower() for u in responses):
@@ -191,21 +197,15 @@ def submit():
             if not es_contrasena_segura(password_peticion):
                 return jsonify({"status": "error", "message": "Contraseña insegura."}), 400
 
-            # Generamos el username único usando el primer nombre ya transformado a mayúsculas
             primer_nombre = data['reg_nombre'].split(" ")[0]
             user_name_generado = generar_username_unico(primer_nombre, responses)
             data['user_name'] = user_name_generado
             
-            # Guardamos el usuario recién creado en la sesión para el siguiente paso
             session['user_name'] = user_name_generado
 
-            # Cifrado de credenciales
             data['reg_password'] = hashlib.sha256(password_peticion.encode('utf-8')).hexdigest()
             data.pop('reg_password_confirm', None)
 
-        # -----------------------------------------------------------------
-        # CASO 2: VIENE DEL FORMULARIO DE MOTIVACIÓN
-        # -----------------------------------------------------------------
         else:
             if 'user_name' not in session:
                 return jsonify({"status": "error", "message": "Sesión no válida para completar perfil."}), 403
@@ -213,32 +213,29 @@ def submit():
             data['user_name'] = session['user_name']
             data['motivacion_respondida'] = True
 
-        # Sanitización general contra inyecciones de código
         for campo in data:
             if isinstance(data[campo], str):
                 data[campo] = sanitizar_texto(data[campo])
 
         data['user_ip'] = request.remote_addr
         
-        # Guardar en la persistencia local JSON
         responses.append(data)
         with open(RESPONSES_FILE, 'w', encoding='utf-8') as f:
             json.dump(responses, f, indent=4, ensure_ascii=False)
 
-        # RETORNO CON REDIRECCIÓN DINÁMICA DE FLUJO SEGÚN EL FORMULARIO ORIGEN
         if 'reg_password' in data:
             return jsonify({
                 "status": "success", 
                 "message": "Registro completado exitosamente.",
                 "user_name": data.get('user_name', ''),
-                "redirect": url_for('onboarding.motivacion_formulario') # Camino obligatorio al segundo formulario
+                "redirect": url_for('onboarding.motivacion_formulario')
             })
             
         return jsonify({
             "status": "success", 
             "message": "Información de motivación procesada exitosamente.",
             "user_name": data.get('user_name', ''),
-            "redirect": url_for('onboarding.dashboard') # Camino obligatorio al feed final
+            "redirect": url_for('onboarding.dashboard')
         })
     
     except Exception as e:
@@ -267,30 +264,141 @@ def check_email():
 
 @onboarding_bp.route('/logout', methods=['GET'])
 def logout():
-    """
-    Elimina la sesión activa del servidor, remueve la IP del registro de aperturas
-    para forzar la vista de bienvenida, y limpia el navegador.
-    """
     user_ip = request.remote_addr
-    
-    # 1. Limpiar la sesión de Flask
     session.clear()
     
-    # 2. Remover la IP de registro_aperturas.json para permitir ver la pantalla amarilla otra vez
     if os.path.exists(APERTURAS_JSON):
         try:
             with open(APERTURAS_JSON, 'r', encoding='utf-8') as f:
                 aperturas = json.load(f)
-            
-            # Si la IP actual está en la lista, la eliminamos
             if user_ip in aperturas:
                 aperturas.remove(user_ip)
-                
-                # Volvemos a guardar el JSON limpio
                 with open(APERTURAS_JSON, 'w', encoding='utf-8') as f:
                     json.dump(aperturas, f, indent=4)
         except Exception as e:
             print(f"🚨 Error al remover la IP durante el logout: {str(e)}")
 
-    # 3. Redirigir a la pantalla de bienvenida inicial
     return redirect(url_for('onboarding.index'))
+
+@onboarding_bp.route('/api/profile-data', methods=['GET'])
+def get_profile_data():
+    if 'user_name' not in session:
+        return jsonify({"status": "error", "message": "No autorizado"}), 401
+    
+    username = session['user_name']
+    db = cargar_datos_comunidad()
+    
+    if username not in db["usuarios"]:
+        db["usuarios"][username] = {
+            "racha": 0,
+            "total_entrenamientos": 0,
+            "ultima_fecha_actividad": None,
+            "seguimiento_privado": []
+        }
+        guardar_datos_comunidad(db)
+        
+    user_data = db["usuarios"][username]
+    
+    return jsonify({
+        "status": "success",
+        "racha": user_data["racha"],
+        "entrenamientos": user_data["total_entrenamientos"],
+        "seguimiento": user_data["seguimiento_privado"],
+        "feed": db["feed_publico"]
+    })
+
+@onboarding_bp.route('/api/profile-action', methods=['POST'])
+def profile_action():
+    if 'user_name' not in session:
+        return jsonify({"status": "error", "message": "No autorizado"}), 401
+        
+    username = session['user_name']
+    db = cargar_datos_comunidad()
+    
+    user_profile = db["usuarios"].setdefault(username, {
+        "racha": 0,
+        "total_entrenamientos": 0,
+        "ultima_fecha_actividad": None,
+        "seguimiento_privado": []
+    })
+    
+    hoy_str = datetime.now().strftime('%Y-%m-%d')
+    
+    # --- DETECCION INTERRUPCIÓN MULTIMEDIA: FORMULARIO DE NUEVO POST CON O SIN FOTO ---
+    if 'foto' in request.files or request.form.get('type') == 'post':
+        texto = sanitizar_texto(request.form.get('text', ''))
+        privacidad = request.form.get('privacy', 'private')
+        
+        if not texto and 'foto' not in request.files:
+            return jsonify({"status": "error", "message": "La publicación no puede estar vacía."}), 400
+
+        image_url = None
+
+        if 'foto' in request.files:
+            file = request.files['foto']
+            if file and file.filename != '' and allowed_file(file.filename):
+                filename = secure_filename(file.filename)
+                unique_filename = f"{int(datetime.now().timestamp())}_{filename}"
+                os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+                file_path = os.path.join(UPLOAD_FOLDER, unique_filename)
+                file.save(file_path)
+                image_url = f"/static/uploads/{unique_filename}"
+
+        nuevo_post = {
+            "autor": username,
+            "fecha": hoy_str,
+            "texto": texto,
+            "imagen": image_url,
+            "privacidad": privacidad
+        }
+        
+        if privacidad == 'public':
+            db["feed_publico"].insert(0, nuevo_post)
+        else:
+            user_profile["seguimiento_privado"].insert(0, {
+                "fecha": hoy_str,
+                "detalle": f"📝 [Post Privado] {texto}",
+                "imagen": image_url,
+                "tipo": "post"
+            })
+
+    # --- PETICION TRADICIONAL JSON: NUEVO REGISTRO DE ACTIVIDAD FÍSICA ---
+    else:
+        data = request.json or {}
+        detalle = sanitizar_texto(data.get('detail', ''))
+        if not detalle:
+            return jsonify({"status": "error", "message": "Contenido vacío"}), 400
+            
+        nueva_actividad = {
+            "fecha": hoy_str,
+            "detalle": detalle,
+            "imagen": None,
+            "tipo": "actividad"
+        }
+        
+        user_profile["seguimiento_privado"].insert(0, nueva_actividad)
+        user_profile["total_entrenamientos"] += 1
+        
+        ultima_fecha = user_profile["ultima_fecha_actividad"]
+        if ultima_fecha is None:
+            user_profile["racha"] = 1
+        else:
+            ult_dt = datetime.strptime(ultima_fecha, '%Y-%m-%d')
+            hoy_dt = datetime.strptime(hoy_str, '%Y-%m-%d')
+            diferencia = (hoy_dt - ult_dt).days
+            
+            if diferencia == 1:
+                user_profile["racha"] += 1
+            elif diferencia > 1:
+                user_profile["racha"] = 1
+            
+        user_profile["ultima_fecha_actividad"] = hoy_str
+            
+    guardar_datos_comunidad(db)
+    return jsonify({
+        "status": "success", 
+        "racha": user_profile["racha"], 
+        "entrenamientos": user_profile["total_entrenamientos"],
+        "seguimiento": user_profile["seguimiento_privado"],
+        "feed": db["feed_publico"]
+    })

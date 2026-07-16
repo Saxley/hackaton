@@ -1,0 +1,27 @@
+{
+  "usuarios": {
+    "@luis069": {
+      "racha": 1,
+      "total_entrenamientos": 3,
+      "ultima_fecha_actividad": "2026-07-15",
+      "seguimiento_privado": [
+        {
+          "fecha": "2026-07-15",
+          "detalle": "Pierna 50kg",
+          "tipo": "actividad"
+        },
+        {
+          "fecha": "2026-07-15",
+          "detalle": "Pecho 20kg 5 series",
+          "tipo": "actividad"
+        },
+        {
+          "fecha": "2026-07-15",
+          "detalle": "Pierna 50kg",
+          "tipo": "actividad"
+        }
+      ]
+    }
+  },
+  "feed_publico": []
+}

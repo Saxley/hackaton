@@ -1,5 +1,6 @@
 {% extends "base.html" %} {% block content %}
 
+<!-- PANTALLA DE SERVICIOS -->
 <div id="screen-servicios" class="app-screen">
   <h2 style="margin-bottom: 20px; font-weight: 800">Hub de Servicios</h2>
   <div class="card" style="margin-bottom: 20px">
@@ -13,6 +14,7 @@
   <div id="categorias-container"></div>
 </div>
 
+<!-- DIALOG MODAL DE DETALLE DE SERVICIO -->
 <dialog id="service-modal" class="custom-dialog">
   <div class="modal-wrapper">
     <h2
@@ -55,6 +57,7 @@
   </div>
 </dialog>
 
+<!-- PANTALLA DE FEED -->
 <div id="screen-feed" class="app-screen active">
   <div
     style="
@@ -121,45 +124,245 @@
   </div>
 </div>
 
+<!-- PANTALLA DE PERFIL AVANZADO -->
 <div
   id="screen-perfil"
   class="app-screen"
   data-logged-in="{% if session.get('user_name') %}true{% else %}false{% endif %}"
 >
-  <h2 style="margin-bottom: 15px">Mi Perfil</h2>
+  <!-- Encabezado del Perfil con Cierre de Sesión Integrado a la Derecha -->
+  <div
+    class="profile-header-card"
+    style="display: flex; justify-content: space-between; align-items: center"
+  >
+    <div class="profile-main-info">
+      <span class="profile-large-avatar">👤</span>
+      <div>
+        <h3 id="profile-username-title">
+          {{ session.get('user_name', 'INVITADO') }}
+        </h3>
+        <p class="profile-badge">Nivel: Principiante</p>
+      </div>
+    </div>
 
-  <div class="card">
-    <p><strong>Usuario:</strong> {{ session.get('user_name', 'Invitado') }}</p>
-    <p style="margin-top: 5px"><strong>Nivel:</strong> Principiante</p>
-    <p style="color: var(--text-muted); margin-top: 10px">
-      Logros alcanzados y estadísticas limpias.
-    </p>
-  </div>
-
-  {% if session.get('user_name') %}
-  <div style="margin-top: 30px; text-align: center">
+    <!-- Flecha de salida roja para cerrar sesión -->
+    {% if session.get('user_name') %}
     <a
       href="{{ url_for('onboarding.logout') }}"
-      class="btn-submit intense"
+      title="Cerrar Sesión"
       style="
-        background-color: #ff3333;
-        color: #ffffff;
-        text-decoration: none;
-        display: inline-block;
-        width: 100%;
-        max-width: 200px;
-        padding: 10px;
-        border-radius: 8px;
-        font-weight: bold;
-        font-size: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform 0.2s ease;
       "
+      onmouseover="this.style.transform = 'scale(1.1)'"
+      onmouseout="this.style.transform = 'scale(1)'"
     >
-      Cerrar Sesión
+      <svg
+        width="32"
+        height="32"
+        viewBox="0 0 24 24"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M14 2H6C4.89543 2 4 2.89543 4 4V20C4 21.1046 4.89543 22 6 22H14"
+          stroke="#ff3333"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+        <path
+          d="M10 12H21M21 12L18 9M21 12L18 15"
+          stroke="#ff3333"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </svg>
     </a>
+    {% endif %}
   </div>
-  {% endif %}
+
+  <!-- Pestañas Internas -->
+  <div class="profile-tabs">
+    <button class="tab-btn active" data-tab="metricas">Métricas</button>
+    <button class="tab-btn" data-tab="logros">Logros</button>
+    <button class="tab-btn" data-tab="seguimiento">Mi Seguimiento</button>
+  </div>
+
+  <!-- Contenido de las Pestañas -->
+  <div class="tab-content-wrapper" style="margin-bottom: 80px">
+    <!-- Panel 1: Métricas y Registro -->
+    <div id="tab-panel-metricas" class="tab-panel active">
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <span class="metric-icon">🔥</span>
+          <h4>Racha Actual</h4>
+          <p class="metric-value">0 Días</p>
+        </div>
+        <div class="metric-card">
+          <span class="metric-icon">💪</span>
+          <h4>Entrenamientos</h4>
+          <p class="metric-value">0</p>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top: 15px">
+        <h4 style="margin-bottom: 10px; color: var(--primary-yellow)">
+          Registrar Actividad
+        </h4>
+        <div style="display: flex; gap: 10px">
+          <input
+            type="text"
+            id="input-actividad"
+            placeholder="Ej. 45 min Gimnasio, 5km Correr"
+            style="flex: 1"
+          />
+          <button
+            id="btn-registrar-actividad"
+            class="btn-submit"
+            style="width: auto; padding: 0 15px"
+          >
+            + Add
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel 2: Logros -->
+    <div id="tab-panel-logros" class="tab-panel">
+      <div class="card achievement-card locked">
+        <span class="achievement-badge">🏆</span>
+        <div>
+          <h4>Primer Paso</h4>
+          <p style="font-size: 12px; color: var(--text-muted)">
+            Completa tu primer registro de actividad en la plataforma.
+          </p>
+        </div>
+      </div>
+      <div class="card achievement-card locked" style="margin-top: 10px">
+        <span class="achievement-badge">⚡</span>
+        <div>
+          <h4>Disciplina de Acero</h4>
+          <p style="font-size: 12px; color: var(--text-muted)">
+            Alcanza una racha activa de 7 días consecutivos.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel 3: Seguimiento Privado -->
+    <div id="tab-panel-seguimiento" class="tab-panel">
+      <div id="private-posts-container">
+        <p
+          style="text-align: center; color: var(--text-muted); font-size: 13px"
+        >
+          Aquí verás tus publicaciones y bitácoras marcadas como privadas.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Botón Flotante para Publicar (FAB) -->
+  <button id="fab-publish" class="fab-btn" title="Publicar nueva actualización">
+    +
+  </button>
 </div>
 
+<!-- DIALOG MODAL: NUEVA PUBLICACIÓN -->
+<dialog id="publish-modal" class="custom-dialog">
+  <div class="modal-wrapper">
+    <h2 style="color: var(--primary-yellow); margin-bottom: 15px">
+      Nueva Publicación
+    </h2>
+
+    <div class="modal-body" style="text-align: left">
+      <label class="question-label" for="publish-text"
+        >¿Qué estás pensando hoy?</label
+      >
+      <textarea
+        id="publish-text"
+        rows="4"
+        placeholder="Comparte tu progreso, fotos o comentarios..."
+        style="
+          width: 100%;
+          background: #1a1a1a;
+          color: #fff;
+          border: 1px solid var(--border-color);
+          border-radius: 6px;
+          padding: 10px;
+          font-family: inherit;
+          resize: none;
+          margin-bottom: 12px;
+        "
+      ></textarea>
+
+      <label class="question-label">Foto de tu avance (Opcional)</label>
+      <div
+        style="
+          margin-bottom: 15px;
+          display: flex;
+          align-items: center;
+          gap: 10px;
+        "
+      >
+        <input
+          type="file"
+          id="publish-file"
+          accept="image/*"
+          style="display: none"
+        />
+        <button
+          type="button"
+          onclick="document.getElementById('publish-file').click()"
+          class="btn-modal secondary"
+          style="width: auto; padding: 8px 14px; font-size: 13px; margin: 0"
+        >
+          📷 Seleccionar Foto
+        </button>
+        <span
+          id="file-chosen-text"
+          style="color: var(--text-muted); font-size: 12px"
+          >Ninguna foto seleccionada</span
+        >
+      </div>
+
+      <label class="question-label" for="publish-privacy"
+        >Privacidad de la publicación</label
+      >
+      <select id="publish-privacy" style="width: 100%; margin-bottom: 10px">
+        <option value="public">
+          Pública (Se comparte en el Feed de Comunidad)
+        </option>
+        <option value="private">
+          Privada (Solo visible en mi Seguimiento de Perfil)
+        </option>
+      </select>
+    </div>
+
+    <div class="modal-actions" style="margin-top: 15px">
+      <button id="btn-submit-publish" class="btn-modal primary">
+        Compartir
+      </button>
+      <button
+        id="btn-close-publish"
+        style="
+          background: none;
+          border: none;
+          color: var(--text-muted);
+          margin-top: 10px;
+          cursor: pointer;
+        "
+      >
+        Cancelar
+      </button>
+    </div>
+  </div>
+</dialog>
+
+<!-- NAVEGACIÓN -->
 <nav
   class="bottom-nav"
   id="dynamic-nav"
@@ -167,6 +370,8 @@
   data-services-url="{{ url_for('static', filename='data/servicios.json') }}"
 ></nav>
 
+<!-- SCRIPTS CONFIGURADOS -->
 <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+<script src="{{ url_for('static', filename='js/profile.js') }}"></script>
 
 {% endblock %}

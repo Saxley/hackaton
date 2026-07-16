@@ -688,3 +688,134 @@ input[type="range"] {
 .auth-actions .btn-submit {
     width: 100%;
 }
+
+/* --- DISEÑO COMPONENTE PERFIL --- */
+.profile-header-card {
+    background: linear-gradient(135deg, #222 0%, #111 100%);
+    padding: 20px;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    margin-bottom: 20px;
+}
+
+.profile-main-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.profile-large-avatar {
+    font-size: 40px;
+}
+
+.profile-badge {
+    background: var(--primary-yellow);
+    color: #000;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: bold;
+    display: inline-block;
+    margin-top: 4px;
+}
+
+/* Pestañas */
+.profile-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 15px;
+}
+
+.tab-btn {
+    flex: 1;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    padding: 10px 0;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-bottom: 2px solid transparent;
+}
+
+.tab-btn.active {
+    color: var(--primary-yellow);
+    border-bottom: 2px solid var(--primary-yellow);
+}
+
+.tab-panel {
+    display: none;
+}
+
+.tab-panel.active {
+    display: block;
+}
+
+/* Grid Métricas */
+.metrics-grid {
+    display: flex;
+    gap: 10px;
+}
+
+.metric-card {
+    flex: 1;
+    background: #1e1e1e;
+    padding: 15px;
+    border-radius: 8px;
+    text-align: center;
+    border: 1px solid var(--border-color);
+}
+
+.metric-icon {
+    font-size: 24px;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.metric-value {
+    color: var(--primary-yellow);
+    font-size: 22px;
+    font-weight: bold;
+    margin-top: 5px;
+}
+
+/* Logros */
+.achievement-card {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 12px;
+}
+
+.achievement-card.locked {
+    opacity: 0.5;
+    filter: grayscale(1);
+}
+
+.achievement-badge {
+    font-size: 28px;
+}
+
+/* Botón Flotante (FAB) */
+.fab-btn {
+    position: fixed;
+    bottom: 85px;
+    /* Libera espacio de la barra de navegación dinámica */
+    right: 20px;
+    width: 56px;
+    height: 56px;
+    background-color: var(--primary-yellow);
+    color: #000;
+    border: none;
+    border-radius: 50%;
+    font-size: 28px;
+    font-weight: bold;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+    cursor: pointer;
+    z-index: 99;
+    transition: transform 0.2s ease;
+}
+
+.fab-btn:hover {
+    transform: scale(1.05);
+}
