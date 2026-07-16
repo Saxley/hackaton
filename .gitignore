@@ -1,3 +1,4 @@
+app/static/uploads
 responses.json
 .venv
 # Created by https://www.toptal.com/developers/gitignore/api/python,venv,jenv,direnv,dotenv,virtualenv,flask,jsonnet,windows,linux
@@ -293,6 +294,7 @@ poetry.toml
 
 # LSP config files
 pyrightconfig.json
+
 
 ### venv ###
 # Virtualenv
