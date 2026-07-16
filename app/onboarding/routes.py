@@ -40,6 +40,19 @@ def es_contrasena_segura(password):
     if not re.search(r"[!@#$%^&*(),.?\":{}|<>]", password): return False
     return True
 
+def obtener_rol_usuario(username):
+    """Busca el rol asignado al usuario en responses.json. Si no tiene, devuelve 'user'."""
+    if os.path.exists(RESPONSES_FILE):
+        try:
+            with open(RESPONSES_FILE, 'r', encoding='utf-8') as f:
+                responses = json.load(f)
+                for u in responses:
+                    if u.get('user_name') == username:
+                        return u.get('rol', 'user')
+        except Exception:
+            pass
+    return 'user'
+
 def generar_username_unico(primer_nombre, usuarios_existentes):
     nombre_limpio = re.sub(r"[^a-zA-Z]", "", primer_nombre).lower()[:5]
     if not nombre_limpio: nombre_limpio = "user"
@@ -201,6 +214,9 @@ def submit():
             user_name_generado = generar_username_unico(primer_nombre, responses)
             data['user_name'] = user_name_generado
             
+            # Asignación por defecto de rol tipo cliente (user) para el formulario público
+            data['rol'] = 'user'
+            
             session['user_name'] = user_name_generado
 
             data['reg_password'] = hashlib.sha256(password_peticion.encode('utf-8')).hexdigest()
@@ -242,6 +258,7 @@ def submit():
         print(f"🚨 Error crítico en /api/submit: {str(e)}")
         return jsonify({"status": "error", "message": "Error interno del servidor."}), 500
 
+
 @onboarding_bp.route('/api/check-email', methods=['POST'])
 def check_email():
     try:
@@ -262,6 +279,7 @@ def check_email():
     except Exception as e:
         return jsonify({"status": "error", "message": "Error al validar el correo."}), 500
 
+
 @onboarding_bp.route('/logout', methods=['GET'])
 def logout():
     user_ip = request.remote_addr
@@ -280,6 +298,7 @@ def logout():
 
     return redirect(url_for('onboarding.index'))
 
+
 @onboarding_bp.route('/api/profile-data', methods=['GET'])
 def get_profile_data():
     if 'user_name' not in session:
@@ -294,13 +313,15 @@ def get_profile_data():
             "total_entrenamientos": 0,
             "ultima_fecha_actividad": None,
             "seguimiento_privado": [],
-            "red_sincronizada": [] # Nueva lista de control de red
+            "red_sincronizada": []
         }
         guardar_datos_comunidad(db)
         
     user_data = db["usuarios"][username]
-    # Asegurar retrocompatibilidad si el nodo no existía en registros previos
     red = user_data.setdefault("red_sincronizada", [])
+    
+    # Obtener el rol actual del usuario conectado
+    rol_actual = obtener_usuario_rol = obtener_rol_usuario(username)
     
     return jsonify({
         "status": "success",
@@ -308,8 +329,10 @@ def get_profile_data():
         "entrenamientos": user_data["total_entrenamientos"],
         "seguimiento": user_data["seguimiento_privado"],
         "red_sincronizada": red,
-        "feed": db["feed_publico"]
+        "rol": rol_actual, # Informamos el rol al motor JS
+        "feed": db.get("feed_publico", [])
     })
+
 
 @onboarding_bp.route('/api/profile-action', methods=['POST'])
 def profile_action():
@@ -319,19 +342,39 @@ def profile_action():
     username = session['user_name']
     db = cargar_datos_comunidad()
     
-    user_profile = db["usuarios"].setdefault(username, {
-        "racha": 0,
-        "total_entrenamientos": 0,
-        "ultima_fecha_actividad": None,
-        "seguimiento_privado": []
-    })
+    if username not in db["usuarios"]:
+        db["usuarios"][username] = {
+            "racha": 0,
+            "total_entrenamientos": 0,
+            "ultima_fecha_actividad": None,
+            "seguimiento_privado": [],
+            "red_sincronizada": []
+        }
     
+    user_profile = db["usuarios"][username]
+    
+    if "total_entrenamientos" not in user_profile:
+        user_profile["total_entrenamientos"] = len([x for x in user_profile.get("seguimiento_privado", []) if x.get("tipo") == "actividad"])
+        
     hoy_str = datetime.now().strftime('%Y-%m-%d')
+    rol_autor = obtener_rol_usuario(username)
     
-    # --- DETECCION INTERRUPCIÓN MULTIMEDIA: FORMULARIO DE NUEVO POST CON O SIN FOTO ---
-    if 'foto' in request.files or request.form.get('type') == 'post':
-        texto = sanitizar_texto(request.form.get('text', ''))
-        privacidad = request.form.get('privacy', 'private')
+    action_type = None
+    if request.is_json:
+        data = request.json or {}
+        action_type = data.get('type')
+    else:
+        action_type = request.form.get('type')
+
+    # --- CASO 1: CREACIÓN DE PUBLICACIONES (POST) ---
+    if action_type == 'post' or 'foto' in request.files:
+        if request.is_json:
+            data = request.json or {}
+            texto = sanitizar_texto(data.get('text', ''))
+            privacidad = data.get('privacy', 'private')
+        else:
+            texto = sanitizar_texto(request.form.get('text', ''))
+            privacidad = request.form.get('privacy', 'private')
         
         if not texto and 'foto' not in request.files:
             return jsonify({"status": "error", "message": "La publicación no puede estar vacía."}), 400
@@ -350,26 +393,33 @@ def profile_action():
 
         nuevo_post = {
             "autor": username,
+            "rol_autor": rol_autor, # Almacena la etiqueta del rol de quien escribe el post
             "fecha": hoy_str,
             "texto": texto,
             "imagen": image_url,
+            "likes": [], 
+            "comentarios": [],
             "privacidad": privacidad
         }
         
         if privacidad == 'public':
-            db["feed_publico"].insert(0, nuevo_post)
+            db.setdefault("feed_publico", []).insert(0, nuevo_post)
         else:
-            user_profile["seguimiento_privado"].insert(0, {
+            user_profile.setdefault("seguimiento_privado", []).insert(0, {
                 "fecha": hoy_str,
                 "detalle": f"📝 [Post Privado] {texto}",
                 "imagen": image_url,
                 "tipo": "post"
             })
 
-    # --- PETICION TRADICIONAL JSON: NUEVO REGISTRO DE ACTIVIDAD FÍSICA ---
+    # --- CASO 2: REGISTRO DE ACTIVIDAD FÍSICA ---
     else:
-        data = request.json or {}
-        detalle = sanitizar_texto(data.get('detail', ''))
+        if request.is_json:
+            data = request.json or {}
+            detalle = sanitizar_texto(data.get('detail', ''))
+        else:
+            detalle = sanitizar_texto(request.form.get('detail', ''))
+            
         if not detalle:
             return jsonify({"status": "error", "message": "Contenido vacío"}), 400
             
@@ -380,46 +430,46 @@ def profile_action():
             "tipo": "actividad"
         }
         
-        user_profile["seguimiento_privado"].insert(0, nueva_actividad)
+        user_profile.setdefault("seguimiento_privado", []).insert(0, nueva_actividad)
         user_profile["total_entrenamientos"] += 1
         
-        ultima_fecha = user_profile["ultima_fecha_actividad"]
+        ultima_fecha = user_profile.get("ultima_fecha_actividad")
         if ultima_fecha is None:
             user_profile["racha"] = 1
         else:
-            ult_dt = datetime.strptime(ultima_fecha, '%Y-%m-%d')
-            hoy_dt = datetime.strptime(hoy_str, '%Y-%m-%d')
-            diferencia = (hoy_dt - ult_dt).days
-            
-            if diferencia == 1:
-                user_profile["racha"] += 1
-            elif diferencia > 1:
+            try:
+                ult_dt = datetime.strptime(ultima_fecha, '%Y-%m-%d')
+                hoy_dt = datetime.strptime(hoy_str, '%Y-%m-%d')
+                diferencia = (hoy_dt - ult_dt).days
+                
+                if diferencia == 1:
+                    user_profile["racha"] += 1
+                elif diferencia > 1:
+                    user_profile["racha"] = 1
+            except Exception:
                 user_profile["racha"] = 1
             
         user_profile["ultima_fecha_actividad"] = hoy_str
             
     guardar_datos_comunidad(db)
+    
     return jsonify({
         "status": "success", 
-        "racha": user_profile["racha"], 
-        "entrenamientos": user_profile["total_entrenamientos"],
+        "racha": int(user_profile["racha"]), 
+        "entrenamientos": int(user_profile["total_entrenamientos"]),
         "seguimiento": user_profile["seguimiento_privado"],
-        "feed": db["feed_publico"]
+        "rol": rol_autor,
+        "feed": db.get("feed_publico", [])
     })
 
-@onboarding_bp.route('/api/sincronizar/<target_user>', methods=['GET']) # <-- Cambiado a GET
+
+@onboarding_bp.route('/api/sincronizar/<target_user>', methods=['GET'])
 def sincronizar_usuario(target_user):
-    """
-    Registra una vinculación de red bidireccional y permanente 
-    al ser escaneada mediante una petición GET de cámara.
-    """
     if 'user_name' not in session:
-        # Si no ha iniciado sesión, lo mandamos al login primero
         return redirect(url_for('onboarding.login'))
         
     username = session['user_name']
     if username == target_user:
-        # Evitar sincronizarse consigo mismo
         return redirect(url_for('onboarding.dashboard'))
 
     db = cargar_datos_comunidad()
@@ -443,32 +493,49 @@ def sincronizar_usuario(target_user):
     if cambio:
         guardar_datos_comunidad(db)
         
-    # Redirige de golpe al dashboard del usuario que escaneó; 
-    # el Long Polling del otro usuario detectará el cambio y abrirá el modal de éxito en su pantalla.
     return redirect(url_for('onboarding.dashboard'))
+
 
 @onboarding_bp.route('/api/like-post', methods=['POST'])
 def like_post():
-    """Registra un like en una publicación del feed público."""
+    if 'user_name' not in session:
+        return jsonify({"status": "error", "message": "Inicia sesión para dar like."}), 401
+        
+    username = session['user_name']
     data = request.json or {}
-    post_id = data.get('post_id') # Usaremos el index o timestamp como ID
+    post_id = data.get('post_id')
     
     db = cargar_datos_comunidad()
     feed = db.get("feed_publico", [])
     
     if 0 <= post_id < len(feed):
         post = feed[post_id]
-        likes = post.setdefault("likes", 0)
-        post["likes"] = likes + 1
-        guardar_datos_comunidad(db)
-        return jsonify({"status": "success", "likes": post["likes"]})
         
-    return jsonify({"status": "error", "message": "Publicación no encontrada"}), 404
+        if "likes" not in post or not isinstance(post["likes"], list):
+            post["likes"] = []
+            
+        likes_lista = post["likes"]
+        
+        if username in likes_lista:
+            likes_lista.remove(username)
+            status_action = "removed"
+        else:
+            likes_lista.append(username)
+            status_action = "added"
+            
+        guardar_datos_comunidad(db)
+        
+        return jsonify({
+            "status": "success", 
+            "action": status_action, 
+            "likes_count": int(len(likes_lista))
+        })
+        
+    return jsonify({"status": "error", "message": "Publicación no encontrada."}), 404
 
 
 @onboarding_bp.route('/api/comment-post', methods=['POST'])
 def comment_post():
-    """Registra un comentario si el usuario está autenticado."""
     if 'user_name' not in session:
         return jsonify({"status": "error", "message": "No autorizado"}), 401
         
@@ -495,3 +562,59 @@ def comment_post():
         return jsonify({"status": "success", "comentarios": comments_list})
         
     return jsonify({"status": "error", "message": "Publicación no encontrada"}), 404
+
+
+@onboarding_bp.route('/api/admin/registrar-coach', methods=['POST'])
+def admin_registrar_coach():
+    if 'user_name' not in session:
+        return jsonify({"status": "error", "message": "No autorizado."}), 401
+        
+    admin_username = session['user_name']
+    
+    responses = []
+    if os.path.exists(RESPONSES_FILE):
+        with open(RESPONSES_FILE, 'r', encoding='utf-8') as f:
+            try: responses = json.load(f)
+            except Exception: pass
+            
+    es_admin = any(u.get('user_name') == admin_username and u.get('rol') == 'admin' for u in responses)
+    if not es_admin:
+        return jsonify({"status": "error", "message": "Acceso denegado. Se requieren permisos de administrador."}), 403
+
+    data = request.json or {}
+    email_coach = data.get('email', '').strip()
+    password_coach = data.get('password', '')
+    nombre_coach = data.get('nombre', '').strip()
+
+    if not email_coach or not password_coach or not nombre_coach:
+        return jsonify({"status": "error", "message": "Faltan campos obligatorios."}), 400
+
+    if not re.match(r"^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s]+$", nombre_coach):
+        return jsonify({"status": "error", "message": "El nombre solo debe contener letras."}), 400
+
+    if any(u.get('reg_email', '').lower() == email_coach.lower() for u in responses):
+        return jsonify({"status": "error", "message": "El correo ya está registrado."}), 400
+
+    if not es_contrasena_segura(password_coach):
+        return jsonify({"status": "error", "message": "Contraseña insegura."}), 400
+
+    user_name_generado = generar_username_unico(nombre_coach.split(" ")[0].upper(), responses)
+    
+    nuevo_coach = {
+        "reg_nombre": nombre_coach.upper(),
+        "reg_email": email_coach,
+        "reg_password": hashlib.sha256(password_coach.encode('utf-8')).hexdigest(),
+        "user_name": user_name_generado,
+        "rol": "coach",
+        "motivacion_respondida": True,
+        "user_ip": request.remote_addr
+    }
+
+    responses.append(nuevo_coach)
+    with open(RESPONSES_FILE, 'w', encoding='utf-8') as f:
+        json.dump(responses, f, indent=4, ensure_ascii=False)
+
+    return jsonify({
+        "status": "success", 
+        "message": f"Entrenador registrado con éxito bajo el usuario {user_name_generado}."
+    })

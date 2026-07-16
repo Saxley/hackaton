@@ -204,9 +204,40 @@
     <button class="tab-btn active" data-tab="metricas">Métricas</button>
     <button class="tab-btn" data-tab="logros">Logros</button>
     <button class="tab-btn" data-tab="seguimiento">Mi Seguimiento</button>
+    <button
+      class="tab-btn"
+      id="tab-btn-admin"
+      data-tab="admin-panel"
+      style="display: none; background: #331111; color: #ff5555"
+    >
+      Panel Admin
+    </button>
   </div>
 
   <div class="tab-content-wrapper" style="margin-bottom: 80px">
+    <!-- PANEL EXCLUSIVO PARA ADMINISTRADORES -->
+    <div id="tab-panel-admin-panel" class="tab-panel">
+      <div class="card" style="border: 1px solid #ff5555">
+        <h4 style="color: #ff5555; margin-bottom: 10px">
+          Gestión de Personal Técnico
+        </h4>
+        <p
+          style="font-size: 12px; color: var(--text-muted); margin-bottom: 15px"
+        >
+          Como administrador, puedes dar de alta a entrenadores oficiales para
+          la plataforma.
+        </p>
+        <button
+          id="btn-open-coach-modal"
+          class="btn-modal primary"
+          style="background-color: #ff5555; margin: 0 auto"
+        >
+          ➕ Registrar Nuevo Entrenador
+        </button>
+      </div>
+    </div>
+
+    <!-- PESTAÑA MÉTRICAS -->
     <div id="tab-panel-metricas" class="tab-panel active">
       <div class="metrics-grid">
         <div class="metric-card">
@@ -241,12 +272,16 @@
         </div>
       </div>
     </div>
+
+    <!-- PESTAÑA LOGROS -->
     <div id="tab-panel-logros" class="tab-panel">
       <div class="card achievement-card locked">
         <span class="achievement-badge">🏆</span>
         <div><h4>Primer Paso</h4></div>
       </div>
     </div>
+
+    <!-- PESTAÑA SEGUIMIENTO -->
     <div id="tab-panel-seguimiento" class="tab-panel">
       <div id="private-posts-container"></div>
     </div>
@@ -254,6 +289,7 @@
   <button id="fab-publish" class="fab-btn">+</button>
 </div>
 
+<!-- DIALOG MODAL: NUEVA PUBLICACIÓN -->
 <dialog id="publish-modal" class="custom-dialog">
   <div class="modal-wrapper">
     <h2>Nueva Publicación</h2>
@@ -318,6 +354,7 @@
   </div>
 </dialog>
 
+<!-- DIALOG MODAL: COMENTARIOS -->
 <dialog id="comment-modal" class="custom-dialog">
   <div class="modal-wrapper">
     <h3 style="color: var(--primary-yellow); margin-bottom: 10px">
@@ -362,6 +399,99 @@
         Cerrar
       </button>
     </div>
+  </div>
+</dialog>
+
+<!-- DIALOG MODAL: REGISTRO DE ENTRENADORES REUTILIZANDO TU STYLE.CSS -->
+<dialog id="admin-coach-modal" class="custom-dialog">
+  <div class="modal-wrapper">
+    <h3 style="color: var(--primary-yellow); margin-bottom: 15px">
+      Dar de Alta Entrenador
+    </h3>
+    <div
+      class="modal-body"
+      style="text-align: left; display: flex; flex-direction: column; gap: 12px"
+    >
+      <div class="form-group">
+        <label class="question-label" style="display: block; margin-bottom: 5px"
+          >Nombre Completo</label
+        >
+        <input
+          type="text"
+          id="admin-coach-name"
+          class="input-field"
+          placeholder="Ej. Carlos Peñaloza"
+          style="width: 100%; box-sizing: border-box"
+        />
+      </div>
+
+      <div class="form-group">
+        <label class="question-label" style="display: block; margin-bottom: 5px"
+          >Correo Electrónico</label
+        >
+        <input
+          type="email"
+          id="admin-coach-email"
+          class="input-field"
+          placeholder="coach@smartfit.com"
+          style="width: 100%; box-sizing: border-box"
+        />
+      </div>
+
+      <div class="form-group">
+        <label class="question-label" style="display: block; margin-bottom: 5px"
+          >Contraseña Temporal</label
+        >
+        <input
+          type="password"
+          id="admin-coach-password"
+          class="input-field"
+          placeholder="••••••••"
+          style="width: 100%; box-sizing: border-box"
+        />
+      </div>
+    </div>
+    <div class="modal-actions" style="margin-top: 20px">
+      <button id="btn-submit-coach" class="btn-modal primary">
+        Registrar Cuenta
+      </button>
+      <button
+        id="btn-close-coach-modal"
+        style="
+          background: none;
+          border: none;
+          color: var(--text-muted);
+          cursor: pointer;
+        "
+      >
+        Cancelar
+      </button>
+    </div>
+  </div>
+</dialog>
+
+<!-- DIALOG MODAL: AVISOS Y ALERTAS ADMINISTRATIVAS -->
+<dialog id="admin-alert-modal" class="custom-dialog" style="text-align: center">
+  <div class="modal-wrapper" style="padding: 10px">
+    <div id="admin-alert-icon" style="font-size: 34px; margin-bottom: 8px">
+      ✨
+    </div>
+    <p
+      id="admin-alert-message"
+      style="
+        font-size: 13px;
+        line-height: 1.4;
+        color: var(--text-main);
+        margin-bottom: 18px;
+      "
+    ></p>
+    <button
+      id="btn-close-admin-alert"
+      class="btn-modal primary"
+      style="width: 100%; margin: 0"
+    >
+      Entendido
+    </button>
   </div>
 </dialog>
 
