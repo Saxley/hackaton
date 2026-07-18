@@ -100,16 +100,18 @@ def guardar_datos_comunidad(data):
 
 @onboarding_bp.route('/', methods=['GET'])
 def index():
+    if 'user_name' in session:
+        return redirect(url_for('onboarding.dashboard'))
+
     user_ip = request.remote_addr
     aperturas = []
     if os.path.exists(APERTURAS_JSON):
         try:
             with open(APERTURAS_JSON, 'r', encoding='utf-8') as f:
                 aperturas = json.load(f)
-        except Exception: pass
-
-    if user_ip in aperturas:
-        return redirect(url_for('onboarding.dashboard'))
+        except Exception:
+            pass
+    
     return render_template('onboarding/welcome.html')
 
 @onboarding_bp.route('/login', methods=['GET'])
