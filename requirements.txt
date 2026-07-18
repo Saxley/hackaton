@@ -1,6 +1,6 @@
-annotated-types==0.7.0
-bleach==6.4.0
-blinker==1.9.0
+annotated-types
+bleach
+blinker
 click==8.4.2
 Flask==3.1.3
 Flask-WTF==1.3.0

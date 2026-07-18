@@ -19,9 +19,33 @@ class ProfileDashboardEngine {
     }
   }
 
-  init() {
+init() {
     this.cargarDatosServidor(true); // Carga inicial limpia
+    
+    const urlParams = new URLSearchParams(window.location.search);
+    const syncStatus = urlParams.get('sync_status');
+    const amigoEscaneado = urlParams.get('amigo') || "un atleta";
 
+    if (syncStatus) {
+      const successModal = document.getElementById("sync-success-modal");
+      const syncMessageText = document.getElementById("sync-success-message");
+
+      if (successModal && syncMessageText) {
+        if (syncStatus === 'success') {
+          syncMessageText.innerText = `¡Agregado con éxito! Ahora compartes red de comentarios mutua con ${amigoEscaneado}.`;
+        } else if (syncStatus === 'exists') {
+          syncMessageText.innerText = `Ya estabas vinculado previamente con ${amigoEscaneado}.`;
+        } else if (syncStatus === 'self') {
+          syncMessageText.innerText = `No puedes agregarte a ti mismo a la red de amigos.`;
+        }
+        
+        // Lo mostramos instantáneamente sin esperas
+        successModal.showModal();
+      }
+
+      // Limpiamos la URL
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
     // Delegación de eventos e inicialización dinámica sobre el DOM
     document.addEventListener("click", (e) => {
       // Interceptor dinámico para el botón Add de actividades

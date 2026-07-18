@@ -10,10 +10,22 @@ from flask import Blueprint, render_template, request, jsonify, redirect, url_fo
 from . import onboarding_bp
 from werkzeug.utils import secure_filename
 from datetime import datetime, timedelta
+from app import csrf
 
-POSTS_ACTIVITIES_FILE = 'posts_activities.json'
-RESPONSES_FILE = 'responses.json'
-APERTURAS_JSON = os.path.join(os.path.dirname(__file__), '../static/data/registro_aperturas.json')
+# 1. Detectar automáticamente dónde estamos
+# Esto detecta la carpeta actual: app/onboarding/
+DIRECTORIO_ONBOARDING = os.path.dirname(__file__)
+
+# Subimos un nivel para llegar a la carpeta padre: app/
+DIRECTORIO_APP = os.path.dirname(DIRECTORIO_ONBOARDING)
+
+# 2. Definir las rutas absolutas exactas
+# Estos se guardarán en: /cosplaymaniac.foxcornio.com/app/
+POSTS_ACTIVITIES_FILE = os.path.join(DIRECTORIO_APP, 'posts_activities.json')
+RESPONSES_FILE = os.path.join(DIRECTORIO_APP, 'responses.json')
+
+# Este se guardará en: /cosplaymaniac.foxcornio.com/app/static/data/
+APERTURAS_JSON = os.path.join(DIRECTORIO_APP, 'static', 'data', 'registro_aperturas.json')
 
 # Configuración corporativa de subidas multimedia
 UPLOAD_FOLDER = os.path.join('app', 'static', 'uploads')
@@ -336,8 +348,12 @@ def get_profile_data():
     })
 
 
-@onboarding_bp.route('/api/profile-action', methods=['POST'])
+@onboarding_bp.route('/api/profile-action', methods=['POST', 'OPTIONS']) # <-- Agregar OPTIONS
+@csrf.exempt
 def profile_action():
+    if request.method == 'OPTIONS':
+        return jsonify({"status": "CORS OK"}), 200
+        
     if 'user_name' not in session:
         return jsonify({"status": "error", "message": "No autorizado"}), 401
         
@@ -465,14 +481,25 @@ def profile_action():
     })
 
 
-@onboarding_bp.route('/api/sincronizar/<target_user>', methods=['GET'])
+@onboarding_bp.route('/api/sincronizar/<target_user>', methods=['GET', 'POST', 'OPTIONS'])
+@csrf.exempt
 def sincronizar_usuario(target_user):
+    # 1. CORS Preflight
+    if request.method == 'OPTIONS':
+        return jsonify({"status": "CORS OK"}), 200
+        
+    # Limpiamos el código del arroba
+    target_user = target_user.replace('%40', '@')
+    
+    # 2. Si no tiene sesión, redirige al login web
     if 'user_name' not in session:
         return redirect(url_for('onboarding.login'))
         
     username = session['user_name']
+    
+    # 3. Si se escanea a sí mismo
     if username == target_user:
-        return redirect(url_for('onboarding.dashboard'))
+        return redirect(url_for('onboarding.dashboard', sync_status='self'))
 
     db = cargar_datos_comunidad()
     
@@ -494,12 +521,18 @@ def sincronizar_usuario(target_user):
         
     if cambio:
         guardar_datos_comunidad(db)
-        
-    return redirect(url_for('onboarding.dashboard'))
+        # 4. Redirige con éxito
+        return redirect(url_for('onboarding.dashboard', sync_status='success', amigo=target_user))
+    else:
+        # 5. Redirige avisando que ya existía la amistad
+        return redirect(url_for('onboarding.dashboard', sync_status='exists', amigo=target_user))
 
 
-@onboarding_bp.route('/api/like-post', methods=['POST'])
+@onboarding_bp.route('/api/like-post', methods=['POST', 'OPTIONS'])
+@csrf.exempt
 def like_post():
+    if request.method == 'OPTIONS':
+        return jsonify({"status": "CORS OK"}), 200
     if 'user_name' not in session:
         return jsonify({"status": "error", "message": "Inicia sesión para dar like."}), 401
         
@@ -536,8 +569,11 @@ def like_post():
     return jsonify({"status": "error", "message": "Publicación no encontrada."}), 404
 
 
-@onboarding_bp.route('/api/comment-post', methods=['POST'])
+@onboarding_bp.route('/api/comment-post', methods=['POST', 'OPTIONS']) # <-- Agregar OPTIONS
+@csrf.exempt
 def comment_post():
+    if request.method == 'OPTIONS':
+        return jsonify({"status": "CORS OK"}), 200
     if 'user_name' not in session:
         return jsonify({"status": "error", "message": "No autorizado"}), 401
         
