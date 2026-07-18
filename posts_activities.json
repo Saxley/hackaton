@@ -25,7 +25,8 @@
                 }
             ],
             "red_sincronizada": [
-                "@luis624"
+                "@luis624",
+                "@sandr143"
             ]
         },
         "@luis624": {
@@ -45,6 +46,15 @@
             "red_sincronizada": []
         },
         "@sandr143": {
+            "racha": 0,
+            "total_entrenamientos": 0,
+            "ultima_fecha_actividad": null,
+            "seguimiento_privado": [],
+            "red_sincronizada": [
+                "@luis069"
+            ]
+        },
+        "@shani411": {
             "racha": 0,
             "total_entrenamientos": 0,
             "ultima_fecha_actividad": null,
